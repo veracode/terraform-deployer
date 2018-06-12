@@ -1,0 +1,161 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright Veracode Inc., 2017
+"""
+Welcome to the Seek-and-Deploy Deployment Utility. You can use this
+utility to create, update, and delete disposable environments in AWS.
+
+Usage:
+<<<<<<< HEAD
+  deployer create  -f <varfile> [--debug] [--bootstrap] [ --skip-download ]
+  deployer destroy -f <varfile> [--debug] [--force]
+  deployer plan    -f <varfile> [--debug]
+  deployer promote -f <varfile> [--debug]
+=======
+  deployer create -v <varfile> [--bootstrap] [--debug] [--remove-workdir] [ --skip-download ]
+  deployer destroy -v <varfile> [--debug] [--remove-workdir]
+  deployer output <tf_var> -v <varfile>
+  deployer plan -v <varfile> [--debug]
+  deployer promote -v <varfile> [--debug]
+>>>>>>> master
+  deployer --version
+
+Options:
+  create                            Create an entire disposable environment. 
+                                    This command is idempotent, and can be used 
+                                    to 'update' an environment after making
+                                    changes to any of the Terraform files.
+
+  destroy                           Just like it sounds. Wipe an environment
+                                    version out completely, just like it was
+                                    never there.
+
+  plan                              When making changes to existing
+                                    infrastructure by changing Terraform files,
+                                    use this command to show what will be
+                                    changed when the 'create' command is run.
+
+  promote                           Promote the traffic from old to new release
+                                    in DNS. Values must equal 100.
+
+  -b --bootstrap                    Bootstrap the environment by uploading
+                                    artifacts to S3
+
+  -d --debug                        Show debug level information.
+
+<<<<<<< HEAD
+  --varfile <varfile>, -f <varfile> Path to the variables file to configure the
+                                    environment.
+
+  --force                           Force override of action
+
+=======
+  -r, --remove-workdir              Remove the temporary workdir.
+
+  -v <varfile>, --varfile <varfile> Path to the variables file to configure the
+                                    environment
+
+>>>>>>> master
+  --version                         Show version.
+
+  -h --help                         Show this screen.
+
+"""
+from   docopt import docopt
+import boto3
+import json
+import logging
+import os
+import sys
+from   deployer              import __version__
+import deployer.aws          as aws
+import deployer.utils        as utils
+import deployer.bootstrap    as bootstrap
+import deployer.preflight    as preflight
+import deployer.s3           as s3
+import deployer.environments as env
+
+logger = logging.getLogger(os.path.basename(__file__))
+
+def main():
+    version_string = 'Deployment Utility {version}'
+    arguments = docopt(__doc__,
+                       version=version_string.format(version=__version__))
+
+
+    if arguments['--debug']:
+        logger.setLevel(logging.DEBUG)
+
+    # Stash the existing environment, so we can override it safely.
+    stashed_environment = dict(os.environ)
+
+    # Load the varfile and validate that it meets the required schema
+    varfile = os.path.abspath(arguments['--varfile'])
+    config  = utils.load_vars(varfile)
+
+    # Validate initial config
+    utils.validate_schema(config, 'conf/default_schema.json')
+
+    try:
+        config = aws.configure(config)
+    except:
+        logger.critical("AWS Configuration Error")
+        raise
+    
+    # Get things into place in S3 if necessary
+    if arguments.get('--bootstrap') and arguments['--bootstrap']:
+        config = bootstrap.bootstrap(config) 
+
+    config = preflight.setup(config)
+
+    # Validate final config passed to terraform before we write it out
+    utils.validate_schema(config, 'conf/terraform_schema.json')
+    preflight.write_vars(config)
+    
+    if arguments['create'] and not arguments['--skip-download']:
+        preflight.download_staged_artifacts(config)
+
+    # We clone if 'terraform' == git URL
+    # Don't do that  when running 'terraform output'
+    if utils.git_url(config['terraform']) and not arguments['output']:
+        preflight.sync_terraform(config)
+    else:
+        msg = "config['terraform'] is set to a local path. Skipping git clone."
+        logger.debug(msg)
+    
+    action = ''
+    functions = {
+        'create'  : env.create,
+        'plan'    : env.plan,
+        'destroy' : env.destroy,
+        'output'  : env.output,
+    }
+    
+    # Trigger the function we want to now that we're set up
+    for key, value in arguments.iteritems():
+        if arguments[key] and functions.get(key):
+            if key == 'output':
+                functions[key](config, arguments['<tf_var>'])
+            else:
+                functions[key](config)
+
+    logger.debug("{}: Removing temporary config directory".format(__name__))
+    if arguments['--remove-workdir']:
+        preflight.teardown(config)
+        
+    # Un-stash the original environment
+    os.environ = stashed_environment
+
+    log_aws_acct_info(config, logger)
+
+
+def log_aws_acct_info(config, logger):
+    acct_name = aws.get_account_name()
+    acct_id = aws.get_account_id()
+    log_msg = "Deployer using AWS Account: {} ({})"
+    logger.debug(log_msg.format(acct_name, acct_id))
+
+    return
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,34 @@
+{
+    "account_id": "123456789012", 
+    "availability_zones": [
+	"us-east-1a", 
+	"us-east-1b", 
+	"us-east-1c", 
+	"us-east-1d", 
+	"us-east-1e"
+    ], 
+    "aws_key_name": "some_ssh_key.pem",
+    "aws_profile": "veracode-random",
+    "aws_region": "us-east-1",
+    "environment": {
+        "name": "myenvname",
+        "version": "a"
+    },
+    "env_folder": "myenv-a", 
+    "env_name": "myenv-a", 
+    "project" : "myproj",
+    "project_config": "123456789012-myproj-data", 
+    "route53_tld" : "some.toplevel.domain",
+    "tf_root": "/Users/pll/Envs/seek-and-deploy/lib/python2.7/site-packages/deployer-managed.by.hatchery-py2.7.egg/deployer/terraform", 
+    "tf_state": "myenv-a.tfstate", 
+    "tf_state_bucket": "123456789012-myproj-tfstate", 
+    "tfvars": "/tmp/deployer_dev/vars.tf", 
+    "tmpdir": "/tmp/deployer_dev",
+    "tags" : {
+	"email": "dl-dontreply@veracode.com",
+	"group": "mygroup",
+	"owner": "myproduct_owner",
+	"product": "MyProduct"
+    }
+	 
+}

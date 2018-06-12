@@ -1,0 +1,55 @@
+Dumping: client.describe_vpcs()
+{
+    "Vpcs": [
+        {
+            "VpcId": "vpc-ce195b07", 
+            "InstanceTenancy": "default", 
+            "Tags": [], 
+            "State": "available", 
+            "DhcpOptionsId": "dopt-7a8b9c2d", 
+            "CidrBlock": "172.31.0.0/16", 
+            "IsDefault": true
+        }, 
+        {
+            "VpcId": "vpc-73f06a7b", 
+            "InstanceTenancy": "default", 
+            "Tags": [
+                {
+                    "Value": "myproj-myenvname-a", 
+                    "Key": "Name"
+                }, 
+                {
+                    "Value": "myenvname-a", 
+                    "Key": "env"
+                }
+            ], 
+            "State": "available", 
+            "DhcpOptionsId": "dopt-7a8b9c2d", 
+            "CidrBlock": "10.1.0.0/16", 
+            "IsDefault": false
+        }
+    ], 
+    "ResponseMetadata": {
+        "RetryAttempts": 0, 
+        "HTTPStatusCode": 200, 
+        "RequestId": "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE", 
+        "HTTPHeaders": {
+            "Content-Type": "text/plain", 
+            "server": "amazon.com"
+        }
+    }
+}
+
+Dumping: client.describe_vpcs(Filters=filters)
+{
+    "Vpcs": [], 
+    "ResponseMetadata": {
+        "RetryAttempts": 0, 
+        "HTTPStatusCode": 200, 
+        "RequestId": "7a62c49f-347e-4fc4-9331-6e8eEXAMPLE", 
+        "HTTPHeaders": {
+            "Content-Type": "text/plain", 
+            "server": "amazon.com"
+        }
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "type": "object",
+    "properties" : {
+	"aws_region": {	"type": "string" },
+	"aws_profile": { "type": "string" },
+	"route53_tld": { "type" : "string" },
+	"tags" : {
+	    "type" : "object",
+	    "properties" : {
+		"email" : {
+		    "type" : "string",
+		    "format" : "email"
+		},
+		"owner" : { "type" : "string" },
+		"group" : { "type" : "string" },
+		"product" : { "type" : "string" },
+		"project" : { "type" : "string" }
+	    },
+	    "required" : [ "email", "owner", "project"]
+	},
+	"terraform": { "type": "string" }
+    },
+    "required": [
+	"aws_region",
+	"aws_profile",
+	"terraform",
+	"tags"
+    ]
+}
