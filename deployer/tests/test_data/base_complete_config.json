@@ -1,0 +1,21 @@
+{
+    "aws_key_name": "some_ssh_key.pem",
+    "aws_profile": "veracode-random",
+    "aws_region": "us-east-1",
+    "environment": {
+        "name": "myenvname",
+        "version": "a"
+    },
+    "project" : "myproj",
+    "route53_tld" : "some.toplevel.domain",
+    "staged_artifacts" : {
+	"artifacts/random.tar.gz" : "staged_artifacts/original_random.tar.gz"
+    },
+    "terraform": "git@gitlab.org:group/project.git?branch=made_up_branch",
+    "tags" : {
+	"email": "dl-dontreply@veracode.com",
+	"group": "mygroup",
+	"owner": "myproduct_owner",
+	"product": "MyProduct"
+    }
+}

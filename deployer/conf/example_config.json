@@ -1,0 +1,23 @@
+{
+    "tmpdir" : "/tmp/deployer_dir",
+    "terraform" : "/terraform/core-infrastructure",
+    "aws_region": "us-east-1",
+    "aws_profile": "aws-nonprod",
+    "aws_key_name": "aws_pem_key",
+    "route53_tld" : "mydomain.com",
+    "elasticache_instance_type": "cache.t2.medium",
+    "environment": {
+	"name": "dev",
+	"version": "a",
+	"weight": 0
+    },
+    "project": "sample",
+    "staged_artifacts" : { },
+    "tags" : {
+	"owner": "pllvc",
+	"email": "pllvc@somedomain.com",
+	"group": "someGroup",
+	"product": "widget"
+    }
+
+}

@@ -1,0 +1,16 @@
+{
+    "aws_key_name": "some_ssh_key.pem",
+    "aws_region": "us-east-1",
+    "environment": {
+        "name": "myenvname",
+        "version": "a"
+    },
+    "project" : "myproj",
+    "route53_tld" : "some.toplevel.domain",
+    "tags" : {
+	"email": "dl-dontreply@veracode.com",
+	"group": "mygroup",
+	"owner": "myproduct_owner",
+	"product": "MyProduct"
+    }
+}

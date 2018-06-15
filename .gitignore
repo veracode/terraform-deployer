@@ -1,0 +1,77 @@
+*.py[cod]
+__pycache__
+
+# C extensions
+*.so
+
+# Packages
+neo*.zip
+python-scanner.zip
+neo*.whl
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+
+# Installer logs
+pip-log.txt
+
+# Verabuild components
+coverage.xml
+junit.xml
+verabuild-work
+verabuild.log
+clonedigger.xml
+
+# Unit test / coverage reports
+.coverage
+.tox
+htmlcov
+
+# Tox cache .. ?
+.cache
+
+# Translations
+*.mo
+
+# Complexity
+output/*.html
+output/*/index.html
+
+# Sphinx
+docs/_build
+
+# Cookiecutter
+output/
+
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.backup
+
+# Hatchery
+.hatchery*
+
+# IDE's
+.idea
+*~
+
+# py.test
+pytestdebug.log
+
+#junk
+*.pid
+*.backup
+.DS_Store
+
+# tmp files
+staged_artifacts
+tmp*

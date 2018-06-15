@@ -1,0 +1,195 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright Veracode Inc., 2017
+"""
+Welcome to the Seek-and-Deploy Deployment Utility. You can use this
+utility to create, update, and delete disposable environments in AWS.
+
+usage:
+  deployer create  -v <varfile> [ --vars-out <vars-out-file> ] [ --bootstrap ] [ --remove-workdir ] [ --skip-download ] [ --debug ]
+  deployer destroy -v <varfile> [ --vars-out <vars-out-file> ] [ --remove-workdir ] [ --debug ]
+  deployer output <tf_var> -v <varfile>
+  deployer plan -v <varfile> [--debug]
+  deployer query -v <varfile> [--debug]
+
+  deployer --version
+
+Options:
+  create                            Create an entire disposable environment.
+                                    This command is idempotent, and can be used
+                                    to 'update' an environment after making
+                                    changes to any of the Terraform files.
+
+  destroy                           Just like it sounds. Wipe an environment
+                                    version out completely, just like it was
+                                    never there.
+
+  output <tf_var>                   Print out the value of the terraform variable
+
+  plan                              When making changes to existing
+                                    infrastructure by changing Terraform files,
+                                    use this command to show what will be
+                                    changed when the 'create' command is run.
+
+  query                             Check AWS to see if environment exists.
+
+  -b --bootstrap                    Bootstrap the environment by uploading
+                                    artifacts to S3
+
+  -d, --debug                        Show debug level information.
+
+  -r, --remove-workdir              Remove the temporary workdir.
+
+  -v <varfile>, --varfile <varfile> Path to the variables file to configure the
+                                    environment
+
+  -o <vars-out-file>, --vars-out <vars-out-file>
+                                    Path to write out the tf_vars file to. [default: vars.tf]
+
+  --version                         Show version.
+
+  -h --help                         Show this screen.
+
+"""
+from   docopt import docopt
+import boto3
+import json
+import logging
+import os
+import sys
+from   deployer              import __version__
+import deployer.aws          as aws
+import deployer.utils        as utils
+import deployer.bootstrap    as bootstrap
+import deployer.preflight    as preflight
+import deployer.s3           as s3
+import deployer.environments as env
+
+logger = logging.getLogger(os.path.basename(__file__))
+
+def main():
+    version_string = 'Deployment Utility {version}'
+    arguments = docopt(__doc__,
+                       version=version_string.format(version=__version__))
+
+
+    if arguments['--debug']:
+        logger.setLevel(logging.DEBUG)
+
+    # Stash the existing environment, so we can override it safely.
+    stashed_environment = dict(os.environ)
+
+    # Load the varfile and validate that it meets the required schema
+    varfile = os.path.abspath(arguments['--varfile'])
+    config  = utils.load_vars(varfile)
+
+    # Validate initial config
+    utils.validate_schema(config, 'conf/default_schema.json')
+
+    try:
+        # set up the basic AWS environment here
+        config = aws.configure(config)
+    except:
+        logger.critical("AWS Configuration Error")
+        raise
+
+
+    # If it's an ephemeral env (it has both a product tag & an
+    # environment version), change the name of the tf_state file so
+    # multiple ephemeral envs can co-exist
+    config['tf_state'] = tf_state_config(config)
+
+    msg = "Setting tf_state name to: {}".format(config['tf_state'])
+    logger.debug(msg)
+
+    if '--vars-out' not in arguments:
+        config['tfvars_file'] = 'vars.tf'
+
+    # Get things into place in S3 if necessary
+    if arguments.get('--bootstrap') and arguments['--bootstrap']:
+        config = bootstrap.bootstrap(config)
+
+    # We don't want to, or even care about setting the branch if we're
+    # only trying to get at the tf output vars.  The branch is already
+    # set, all that matters is that we can read the local state file.
+    git_sync = True
+    if arguments.get('output'):
+        git_sync = False
+    config = preflight.setup(config, sync=git_sync)
+
+    if arguments['create'] and not arguments['--skip-download']:
+        preflight.download_staged_artifacts(config)
+
+    # We clone if 'terraform' == git URL
+    # Don't do that  when running 'terraform output'
+    if utils.git_url(config['terraform']) and not arguments['output']:
+        preflight.sync_terraform(config)
+    else:
+        msg = "config['terraform'] is set to a local path. Skipping git clone."
+        logger.debug(msg)
+
+
+    # Validate final config passed to terraform before we write it out
+    utils.validate_schema(config, 'conf/terraform_schema.json')
+    preflight.write_vars(config, config['tfvars'])
+
+    functions = {
+        'create'  : env.create,
+        'plan'    : env.plan,
+        'destroy' : env.destroy,
+        'output'  : env.output,
+        'query'   : env.query,
+    }
+
+    # Set the deployer_state key so we can search for it.
+    config['tags']['deployer_state'] = ''
+    state_tag = {
+        'create'  : 'running',
+        'destroy' : 'destroy'
+    }
+
+    # Trigger the function we want to now that we're set up
+    for key, value in arguments.iteritems():
+        if arguments[key] and functions.get(key):
+            if key == 'output':
+                functions[key](config, arguments['<tf_var>'])
+            else:
+                # Set the 'deployer_state' tag  based on action
+                config['tags']['deployer_state'] = state_tag.get(key, None)
+                functions[key](config)
+                
+    logger.debug("{}: Removing temporary config directory".format(__name__))
+    if arguments['--remove-workdir']:
+        preflight.teardown(config)
+
+    # Un-stash the original environment
+    os.environ = stashed_environment
+
+    log_aws_acct_info(config, logger)
+
+
+def log_aws_acct_info(config, logger):
+    acct_name = aws.get_account_name()
+    acct_id = aws.get_account_id()
+    log_msg = "Deployer using AWS Account: {} ({})"
+    logger.debug(log_msg.format(acct_name, acct_id))
+
+    return
+
+def tf_state_config(config):
+    tf_state_name = config.get('tf_state')
+    tag = 'product'
+    if tag in config['tags'] and 'version' in config['environment']:
+        tf_state_name = "{}-{}".format(config['tags'].get(tag, None),
+                                       tf_state_name)
+        msg = "Setting ephemeral environment name to: '{}' based on tag: '{}'"
+        logger.debug(msg.format(tf_state_name,tag))
+                    
+    return tf_state_name
+
+if __name__ == "__main__":
+    main()
+
+
+
+        

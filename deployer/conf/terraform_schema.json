@@ -1,0 +1,54 @@
+{
+    "type" : "object",
+    "properties" : {
+	"account_id"         : { "type": "string" },
+	"availability_zones" : { "type": "array"  },
+	"aws_key_name"       : { "type": "string" },
+	"aws_profile"        : { "type": "string" },
+	"aws_region"         : { "type": "string" },
+	"env_folder"         : { "type": "string" },
+	"env_name"           : { "type": "string" },
+	"project"            : { "type": "string" },
+	"project_config"     : { "type": "string" },
+	"public_zone_id"     : { "type": "string" },
+	"route53_tld"        : { "type": "string" },
+	"tf_root"            : { "type": "string" },
+	"tf_state"           : { "type": "string" },
+	"tf_state_bucket"    : { "type": "string" },
+	"tfvars"             : { "type": "string" },
+	"tmpdir"             : { "type": "string" },
+	"tags" : {
+	    "type" : "object",
+	    "properties" : {
+		"email" : {
+		    "type" : "string",
+		    "format" : "email"
+		},
+		"owner" : { "type" : "string" },
+		"group" : { "type" : "string" },
+		"product" : { "type" : "string" }
+	    },
+	    "required" : [ "email", "owner"]
+	}
+    },
+    "required": [
+	"account_id",
+	"availability_zones",
+	"aws_key_name",
+	"aws_profile",
+	"aws_region",
+	"env_folder",
+	"env_name",
+	"project",
+	"project_config",
+	"public_zone_id",
+	"route53_tld",
+	"tags",
+	"tf_state",
+	"tf_state_bucket",
+	"tfvars",
+	"tmpdir"
+    ]
+}
+
+

@@ -1,0 +1,156 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Copyright Veracode Inc., 2017
+import argparse
+import json
+import logging
+import os
+import sys
+
+from argparse import RawTextHelpFormatter
+
+import deployer.aws          as aws
+import deployer.utils        as utils
+from   deployer.preflight    import write_vars
+import deployer.environments as env
+
+
+logger = logging.getLogger(os.path.basename(__file__))
+default_schema = 'conf/default_schema.json'
+
+
+def main():
+    version_string = 'Deployment Utility {version}'
+    opts = parseArgs(sys.argv)
+
+    if opts.debug:
+        logger.setLevel(logging.DEBUG)
+
+    # Load the varfile and validate that it meets the required schema
+    config_template = os.path.abspath(opts.config)
+    config = utils.load_vars(config_template)
+
+    # Validate initial config
+    utils.validate_schema(config, opts.schema)
+
+    newConfig = config
+    if opts.override:
+        newConfig = dict(config.items() + opts.override.items())
+
+    if ( newConfig['environment'].has_key('version') and
+         newConfig['environment']['version'] == 'GET_NEXT'):
+        env_name = newConfig['environment']['name']
+        prod = newConfig['tags'].get('product', None)
+        next_version = env.get_next_version(env_name, prod)
+        newConfig['environment']['version'] = next_version
+
+    # newConfig['account_id'] = newConfig.get('account_id', get_account_id())
+    newConfig = aws.configure(newConfig)
+
+    newConfig = utils.eval_config(newConfig)
+    
+    # Validate final config passed to terraform before we write it out
+    utils.validate_schema(newConfig, opts.schema)
+    write_vars(newConfig, varfile=opts.outfile)
+    print json.dumps(newConfig, indent=4)
+
+
+def parseArgs(argv):
+    """Parse any command line args, on error or lack of args, call usage()
+
+       Parameters:
+         argv  list of args passed in on the command line.
+
+       Returns
+         list of set options
+         list of additional args not set as options
+         """
+
+    configDoc = "Specify a config template to use for generating a new\n"
+    configDoc += "config file with."
+    overrideDoc = """Pass arbitrary JSON structures into the config_gen
+to override the config file itself.
+
+--var '{\"environment\": { \"name\": \"coral\", \"version\": \"q\"} }'"
+--var \"fizzledir=/tmp/drizzle\"
+"""
+
+    debugDoc = "-d, --debug  Turn on debug level logging."
+    descrDoc = """
+Welcome to the Seek-and-Deploy Deployment Configuration File Generator
+Utility. You can use this utility to evaluate config file templates to
+be intended for consumption by the deployer utility.
+"""
+    epilogDoc = "Example: \n"
+    epilogDoc += "%(prog)s -c config_template.json -s schema.json"
+    outfileDoc = "Path to where the output should be written."
+    schemaDoc = "Path to the config file template to to be used to\n"
+    schemaDoc += "generate an environment configuration for the deployer."
+
+    usageDoc = '%(prog)s [options]'
+
+    # Option help strings:
+    parser = argparse.ArgumentParser(description = descrDoc,
+                                     usage = usageDoc,
+                                     epilog = epilogDoc,
+                                     formatter_class = RawTextHelpFormatter
+                                     )
+
+    requiredArgs = parser.add_argument_group('required arguments')
+    requiredArgs.add_argument('-c', '--config-template',
+                              action = 'store',
+                              dest = 'config',
+                              help = configDoc,
+                              required = True)
+
+    requiredArgs.add_argument('-o', '--out-file',
+                              action = 'store',
+                              dest = 'outfile',
+                              help = outfileDoc,
+                              required = True)
+
+    parser.add_argument('-d', '--debug',
+                        action = 'store_false',
+                        dest = 'debug',
+                        help = debugDoc,
+                        required = False,
+                        default = False)
+    
+    parser.add_argument('-s', '--schema',
+                        action = 'store',
+                        dest = 'schema',
+                        help = schemaDoc,
+                        required = False,
+                        default = default_schema)
+    
+    parser.add_argument('--var',
+                        action = 'append',
+                        dest = 'override',
+                        help = overrideDoc,
+                        required = False)
+
+    opts = parser.parse_args()
+
+    if opts.override and len(opts.override) > 0:
+        opts.override = utils.parseConfigOpts(opts.override)
+
+    msg = ''
+    if (len(argv) < 2):
+        printHelp(msg,parser)
+
+    if msg:
+        printHelp(msg, parser)
+
+    return opts
+
+
+def printHelp(msg, parser):
+    if msg:
+        print "\nERROR: ",msg,"\n"
+    parser.print_usage()
+    print msg
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
