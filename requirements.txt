@@ -1,4 +1,3 @@
---extra-index-url https://pypi.laputa.veracode.io/simple
 hatchery
 argparse
 clonedigger
