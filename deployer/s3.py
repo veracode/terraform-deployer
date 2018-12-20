@@ -71,7 +71,31 @@ def create_bucket(bucket_name):
     """
     s3 = boto3.client('s3')
     try:
-        s3.create_bucket(Bucket=bucket_name)
+        s3.create_bucket(Bucket=bucket_name,
+                         ACL='private')
+        s3.put_bucket_encryption(
+            Bucket=bucket_name,
+            ServerSideEncryptionConfiguration={
+                'Rules': [ {
+                    'ApplyServerSideEncryptionByDefault': {
+                        'SSEAlgorithm': 'AES256'
+                    }
+                }
+                ]
+            }
+        )
+        s3.put_bucket_versioning(
+            Bucket=bucket_name,
+            VersioningConfiguration={ 'Status': 'Enabled' }
+        )
+        # s3.put_bucket_tagging(
+        #     Bucket=bucket_name,
+        #     Tagging={
+        #         'TagSet': [
+        #             tag hash
+        #         ]
+        #     }
+        # )
     except botocore.exceptions.ClientError as e:
         if not e.response.get('Error', {}).get('Code') == "BucketAlreadyExists":
             logger.error("{}".format(e.message))
