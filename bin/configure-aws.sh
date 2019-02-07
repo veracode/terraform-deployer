@@ -14,11 +14,7 @@ cat >~/.aws/credentials <<HERE
 aws_access_key_id = $AWS_ACCESS_KEY_ID
 aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
 
-[veracode-dynarch-nonprod]
-aws_access_key_id = $AWS_ACCESS_KEY_ID
-aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
-
-[veracode-random]
+[unit-test-random]
 aws_access_key_id=XXXXXXXXXXXXXXXXXXXX
 aws_secret_access_key=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY    
 
