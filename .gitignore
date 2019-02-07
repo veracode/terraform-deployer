@@ -4,6 +4,9 @@ __pycache__
 # C extensions
 *.so
 
+# git
+**/.gitignore
+
 # Packages
 neo*.zip
 python-scanner.zip
@@ -53,7 +56,7 @@ docs/_build
 output/
 
 # Terraform
-.terraform
+**/.terraform/
 *.tfstate
 *.tfstate.backup
 

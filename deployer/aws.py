@@ -4,6 +4,7 @@
 import boto3
 import logging
 import os
+from botocore.exceptions import ClientError
 
 import deployer.utils as utils
 import deployer.s3
@@ -197,6 +198,11 @@ def environment_exists(env_name, env_vers=None, ephemeral_env=None):
             # Don't add an instance ARN if it's not running.
             logger.debug("Skipping instance: Not really running")
             continue
+        if arn[5].startswith('nat') and not natgateway_exists(arn[5]):
+            # Don't add a natgw ARN if it's not really there
+            logger.debug("Skipping nat gw: Not really running")
+            continue
+            
         # Add non-instance ARN tagged as running and actual running instance
         resourceArns.append(resource['ResourceARN'])
 
@@ -240,7 +246,8 @@ def tag_resources(config):
     if len(results['ResourceTagMappingList']) > 0:
         for resource in results['ResourceTagMappingList']:
             arn = resource['ResourceARN'].split(':')
-            if arn[5].startswith('instance') and instance_is_running(arn[5]):
+            if ( (arn[5].startswith('instance') and instance_is_running(arn[5]))
+                 or (arn[5].startswith('nat') and natgateway_exists(arn[5]))):
                     resourceArns.append(resource['ResourceARN'])
             else:
                 # If it's not an instance, we'll deal with it anyway.
@@ -276,7 +283,29 @@ def instance_is_running(arn):
             return True
     return False
 
+def natgateway_exists(arn):
+    """
+    Checks to see if a nat-gateway really exists or not.
 
+    Args:
+        arn: String representing the ARN of a nat-gateway
+
+    Returns:
+        True or False based on the state of the nat-gateway
+    """
+    nat = boto3.client('ec2')
+    natgw_id = arn.split('/')[1]
+    try:
+        natgw = nat.describe_nat_gateways(NatGatewayIds=[ natgw_id ])
+        if natgw['NatGateways'][0]['State'] == 'deleted':
+            return False
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'NatGatewayNotFound':
+            # apparently it's a ghost natgw
+            return False
+
+    return True
+    
 def vpc_exists(config):
     """
     Checks to see if a VPC named for the current environment exists.
