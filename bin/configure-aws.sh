@@ -4,9 +4,7 @@
 
 mkdir ~/.aws
 
-CREDS="AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
-
-PROFILE=$( "$CREDS" aws iam list-account-aliases --output text | awk '{print $2}')
+PROFILE=$(aws iam list-account-aliases --output text | awk '{print $2}')
 
 cat >~/.aws/config <<HERE
 [default]
