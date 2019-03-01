@@ -19,7 +19,7 @@ def apply(config):
     Returns:
         tf_command: list of command-line arguments to run terraform with.
     """
-    tf_command = ['terraform', 'apply']
+    tf_command = ['terraform', 'apply', '-auto-approve']
     tf_command += default_cmdline_options(config)
 
     return tf_command

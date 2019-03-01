@@ -120,6 +120,7 @@ def test_tf_plan_with_destroy_action(mock_config):
 def test_tf_apply(mock_config):
     expected = ['terraform',
                 'apply',
+                '-auto-approve',
                 "-var='aws_region=us-east-1'",
                 '-var-file=/tmp/test_tmp_dir/vars.tf',
                 ]
