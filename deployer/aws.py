@@ -178,7 +178,7 @@ def environment_exists(env_name, env_vers=None, ephemeral_env=None):
     client = boto3.client('resourcegroupstaggingapi')
     env_name_filter = { 'Key': 'env_name', 'Values': [ env_name ] }
     env_vers_filter = { 'Key': 'env_version', 'Values': [ env_vers ] }
-    ephemeral_filter = { 'Key': 'product', 'Values': [ ephemeral_env ] }
+    ephemeral_filter = { 'Key': 'system_type', 'Values': [ ephemeral_env ] }
 
     # Search for a value of 'running'. Any other value means the
     # environment doesn't really exist

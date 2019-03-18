@@ -110,11 +110,11 @@ def query(config):
     if env_vers:
         env = "-".join([env_name, env_vers])
 
-    product = config['tags'].get('product', None)
-    resources = aws.environment_exists(env_name, env_vers, product)
+    system_type = config['tags'].get('system_type', None)
+    resources = aws.environment_exists(env_name, env_vers, system_type)
 
-    if product:
-        env = "-".join([product, env])
+    if system_type:
+        env = "-".join([system_type, env])
 
     if resources > 0:
         msg  = "{} exists."
@@ -148,11 +148,11 @@ def create(config):
     if env_vers:
         env = "-".join([env_name, env_vers])
 
-    product = config['tags'].get('product', None)
-    resources = aws.environment_exists(env_name, env_vers, product)
+    system_type = config['tags'].get('system_type', None)
+    resources = aws.environment_exists(env_name, env_vers, system_type)
     if resources > 0:
-        if product:
-            env = "-".join([product, env])
+        if system_type:
+            env = "-".join([system_type, env])
 
         from termcolor import colored
 
@@ -203,11 +203,11 @@ def destroy(config):
     if env_vers:
         env = "-".join([env_name, env_vers])
 
-    product = config['tags'].get('product', None)
-    if not aws.environment_exists(env_name, env_vers, product):
+    system_type = config['tags'].get('system_type', None)
+    if not aws.environment_exists(env_name, env_vers, system_type):
         msg = "No such environment with the name {} exists."
-        if product:
-            env = "-".join([product, env])
+        if system_type:
+            env = "-".join([system_type, env])
         raise EnvironmentExistsException(msg.format(env))
 
     tf_root = _precheck(config, 'destroy')
@@ -221,7 +221,7 @@ def destroy(config):
 
     # Double check the make sure we don't have anything left running
     # before destroying the S3 resources.
-    if not aws.environment_exists(env_name, env_vers, product) and return_code == 0:
+    if not aws.environment_exists(env_name, env_vers, system_type) and return_code == 0:
         # Destroy the per-environment S3 folder in
         msg = "Destroying S3 env folder: {}".format(config['env_folder'])
         logger.debug(msg)

@@ -178,7 +178,7 @@ def log_aws_acct_info(config, logger):
 
 def tf_state_config(config):
     tf_state_name = config.get('tf_state')
-    tag = 'product'
+    tag = 'system_type'
     if tag in config['tags'] and 'version' in config['environment']:
         tf_state_name = "{}-{}".format(config['tags'].get(tag, None),
                                        tf_state_name)
