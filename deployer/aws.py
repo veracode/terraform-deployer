@@ -225,7 +225,8 @@ def tag_resources(config):
     client = boto3.client('resourcegroupstaggingapi')
     env_name = config['environment'].get('name')
     env_vers = config['environment'].get('version', None)
-    ephemeral_env = config['tags'].get('product', None)
+    ephemeral_env = config['tags'].get('system_type', None)
+        
 
     # Search for all entities with of a given environment name and
     # version AND the deployer_state. deployer_state value is
@@ -238,7 +239,7 @@ def tag_resources(config):
         query.append(env_vers_filter)
 
     if ephemeral_env:
-        ephemeral_filter = { 'Key': 'product', 'Values': [ ephemeral_env ] }
+        ephemeral_filter = { 'Key': 'system_type', 'Values': [ ephemeral_env ] }
         query.append(ephemeral_filter)
         
     results = client.get_resources(TagFilters = query)
@@ -275,12 +276,17 @@ def instance_is_running(arn):
     """
     instance = boto3.client('ec2')
     instance_id = arn.split('/')[1]
-    inst = instance.describe_instances(InstanceIds=[ instance_id ])
-    if len(inst['Reservations']) > 0:
-        state = inst['Reservations'][0]['Instances'][0]['State']['Name']
-        # If the ARN is an instance, only append it if it's running
-        if state == 'running':
-            return True
+    try:
+        inst = instance.describe_instances(InstanceIds=[ instance_id ])
+        if len(inst['Reservations']) > 0:
+            state = inst['Reservations'][0]['Instances'][0]['State']['Name']
+            # If the ARN is an instance, only append it if it's running
+            if state == 'running':
+                return True
+    except ClientError as e:
+        logger.warn("Client: does not exist, skipping\n{}".format(e))
+        pass
+        
     return False
 
 def natgateway_exists(arn):
