@@ -1,0 +1,55 @@
+variables:
+    DOCKER_HOST: tcp://docker:2375/
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+    DOCKER_HOST: tcp://docker:2375
+    # When using dind, it's wise to use the overlayfs driver for
+    # improved performance.
+    DOCKER_DRIVER: overlay2
+    IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+
+services:
+  - docker:dind
+
+stages:
+  - build
+  - tag
+
+.before_script: &before_script |
+    docker info
+    docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+
+.build_script: &build_script |
+    docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    docker build -t $IMAGE_TAG -f src/deployer/Dockerfile .
+    docker push $IMAGE_TAG
+
+auto_tag_repo:
+  image: daypatrickb/gitlab-repo-tagger:latest
+  stage: tag
+  only:
+    - master
+  script:
+    - tag-repo
+
+build_container_dev:
+  stage: build
+  image: docker:18-dind
+  when: always
+  except:
+    - tags
+    - master
+  before_script:
+    - *before_script
+  script:
+    - *build_script
+
+build_container_prod:
+  stage: build
+  image: docker:18-dind
+  when: always
+  only:
+    - tags
+  before_script:
+    - *before_script
+  script:
+    - *build_script
