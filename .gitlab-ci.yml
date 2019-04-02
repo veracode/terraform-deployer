@@ -53,3 +53,6 @@ build_container_prod:
     - *before_script
   script:
     - *build_script
+    - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:latest
+    - docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PW}
+    - docker push pllsaph/seek-and-deploy:latest
