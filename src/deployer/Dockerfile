@@ -22,13 +22,14 @@ ENV LANG=en_US.UTF-8 \
 
 RUN set -euo && \
     apt-get install -y	 \
-    	    openssl	 \
-	    libffi6	 \
+    	    git	    	 \
 	    libffi-dev	 \
+	    libffi6	 \
+    	    openssl	 \
 	    python	 \
 	    python-pip	 \
 	    unzip	 \
-	    wget
+	    wget	 
 
 RUN wget -nv https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip
 RUN unzip terraform_0.11.11_linux_amd64.zip -d /usr/local/bin
