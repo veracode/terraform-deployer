@@ -38,6 +38,7 @@ RUN terraform --version
 COPY . /deployer
 
 RUN mkdir /tmp/deployer_dir
+RUN pip install awscli
 RUN cd /deployer && pip install -r requirements.txt  && make install
 
 
