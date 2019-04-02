@@ -55,6 +55,6 @@ build_container_prod:
     - *build_script
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:latest
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG
-    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-    - docker push pllsaph/seek-and-deploy:latest
-    - docker push pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG    
+    # - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    # - docker push pllsaph/seek-and-deploy:latest
+    # - docker push pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG    
