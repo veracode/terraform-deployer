@@ -26,9 +26,9 @@ setup(
     include_package_data=True,
     install_requires=[
         'argparse',
-        'botocore==1.10.19',
-        'boto3==1.7.19',
-        'docopt==0.6.2',
+        'botocore',
+        'boto3',
+        'docopt',
         'flake8',
         'jinja2',
         'jsonschema',
