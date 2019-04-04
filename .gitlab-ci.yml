@@ -13,6 +13,7 @@ services:
 stages:
   - build
   - tag
+  - publish
 
 .before_script: &before_script |
     docker info
@@ -53,13 +54,25 @@ build_container_prod:
     - *before_script
   script:
     - *build_script
+
+push_to_docker_hub:
+  stage: publish
+  image: docker:18-dind
+  when: on_success
+  dependencies:
+    - build_container_prod
+  only:
+    - tags
+  variables:
     - CI_REGISTRY="docker.io"
     - CI_REGISTRY_USER=${DOCKER_USER}
     - CI_REGISTRY_PASSWORD=${DOCKER_PASSWORD}
     - CI_REGISTRY=docker.io
     - CI_REGISTRY_IMAGE=docker.io/pllsaph/seek-and-deploy
+  before_script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+  script:
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:latest
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG
-    # - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-    - docker push pllsaph/seek-and-deploy:latest
     - docker push pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG    
+    - docker push pllsaph/seek-and-deploy:latest
