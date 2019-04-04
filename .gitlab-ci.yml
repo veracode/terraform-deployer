@@ -65,12 +65,17 @@ push_to_docker_hub:
     - tags
   variables:
     CI_REGISTRY: "docker.io"
-    CI_REGISTRY_USER: ${DOCKER_USER}
-    CI_REGISTRY_PASSWORD: ${DOCKER_PASSWORD}
+    CI_REGISTRY_USER: $DOCKER_USER
+    CI_REGISTRY_PASSWORD: $DOCKER_PASSWORD
     CI_REGISTRY: docker.io
     CI_REGISTRY_IMAGE: docker.io/pllsaph/seek-and-deploy
   before_script:
-    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD} ${CI_REGISTRY}
+    - echo "USER = $CI_REGISTRY_USER"
+    - echo "PASS = $CI_REGISTRY_PASSWORD"
+    - echo "REG  = $CI_REGISTRY"
+    - echo "DUSER = $DOCKER_USER"
+    - echo "DPASS = $DOCKER_PASSWORD"
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:latest
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG
