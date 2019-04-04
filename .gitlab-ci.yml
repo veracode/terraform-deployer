@@ -54,8 +54,9 @@ build_container_prod:
   script:
     - *build_script
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker info
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:latest
     - docker tag $IMAGE_TAG pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG
-    - docker push pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG    
     - docker push pllsaph/seek-and-deploy:latest
+    - docker push pllsaph/seek-and-deploy:$CI_COMMIT_REF_SLUG    
 
