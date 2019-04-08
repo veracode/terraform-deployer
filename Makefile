@@ -42,9 +42,12 @@ config:
 	mkdir -p ${DIR}
 	echo '[default]' >> ${DIR}/config
 	echo 'region = us-east-1' >> ${DIR}/config
-	echo '' >> ${CONFIG}
+	echo '' >> ${DIR}/config
+	echo '[default]' >> ${DIR}/credentials
 	echo 'aws_access_key_id=XXXXXXXXXXXXXXXXXXXX' >> ${DIR}/credentials
 	echo 'aws_secret_access_key=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' >> ${DIR}/credentials
+	echo '' >> ${DIR}/credentials
+	cat ${DIR}/credentials
 
 install: build
 	python setup.py install > /dev/null
