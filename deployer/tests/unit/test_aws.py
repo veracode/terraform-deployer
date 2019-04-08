@@ -37,7 +37,7 @@ def reset_env():
 
 @pytest.fixture
 def mock_config(scope="function"):
-    return { "aws_profile" : "veracode-random",
+    return { "aws_profile" : "tests-random",
              "aws_region"  : "us-east-1",
              "environment" : {
                  "name" : "myenvname",
@@ -49,7 +49,7 @@ def mock_config(scope="function"):
 
 @pytest.fixture
 def mock_config_with_tags(scope="function"):
-    return { "aws_profile" : "veracode-random",
+    return { "aws_profile" : "tests-random",
              "aws_region"  : "us-east-1",
              "tags" : {
                  "key1" : "value1",
@@ -66,8 +66,8 @@ def mock_config_with_tags(scope="function"):
 @pytest.fixture
 def mock_env(scope="function"):
     return {
-        "AWS_DEFAULT_PROFILE" : "veracode-random",
-        "AWS_PROFILE" : "veracode-random",
+        "AWS_DEFAULT_PROFILE" : "tests-random",
+        "AWS_PROFILE" : "tests-random",
         "AWS_DEFAULT_REGION" : "us-east-1"}
 
 
@@ -104,7 +104,7 @@ def test_configure_config(mock_config):
     assert dict(os.environ) == {}
 
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
@@ -150,7 +150,7 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
     mock_config_with_tags['environment'].pop('version')
 
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
@@ -200,7 +200,7 @@ def test_configure_config_with_tags(mock_config_with_tags):
     (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
@@ -254,7 +254,7 @@ def test_configure_env(mock_config, mock_env):
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
     with patch('deployer.aws.boto3', fake_boto3):
-        session = boto3.Session(profile_name='veracode-random')
+        session = boto3.Session(profile_name='tests-random')
         s3client = session.client('s3')
         s3client.create_bucket(Bucket="123456789012-myproj-data")
         aws.configure(mock_config)

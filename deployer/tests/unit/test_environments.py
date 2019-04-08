@@ -30,7 +30,7 @@ def mock_inst_is_running(instance_id):
 def mock_config(scope="function"):
     return {
         "terraform": "git@gitlab.org:group/project.git?branch=made_up_branch",
-        "aws_profile": "veracode-random",
+        "aws_profile": "tests-random",
         "aws_region": "us-east-1",
         "availability_zones": [
             'us-east-1b',
