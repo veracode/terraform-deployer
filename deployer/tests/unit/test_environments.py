@@ -18,7 +18,7 @@ fake_boto3 = MyBoto3.MyBoto3()
 
 
 def mock_run_cmd(args, cwd=None):
-    print "CWD: {}, Running command: {}".format(cwd, " ".join(args))
+    print("CWD: {}, Running command: {}".format(cwd, " ".join(args)))
     return 0
 
 
@@ -44,7 +44,7 @@ def mock_config(scope="function"):
             "version": "a",
         },
         'tags': {
-            'product' : 'mock_product'
+            'system_type' : 'mock_product'
         },
         "env_name": "myenvname-a",
         "tf_state": "myenvname-a.tfstate",
@@ -90,8 +90,8 @@ def test_create_env_exists(mock_config):
     expected_msg += "\n\n{}".format(json.dumps(expected_arn, indent=4))
         
     env_name = mock_config['env_name']
-    if 'tags' in mock_config and 'product' in mock_config['tags']:
-        env_name = "-".join([mock_config['tags']['product'], env_name ])
+    if 'tags' in mock_config and 'system_type' in mock_config['tags']:
+        env_name = "-".join([mock_config['tags']['system_type'], env_name ])
         
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket="123456789012-myproj-tfstate")
@@ -104,7 +104,7 @@ def test_create_env_exists(mock_config):
                                  'Value' : 'myproj-myenvname-a'},
                                 {'Key':'env',
                                  'Value' : 'myenvname-a'},
-                                {'Key' : 'product',
+                                {'Key' : 'system_type',
                                  'Value' : 'mock_product'} ])
 
         with patch('deployer.aws.instance_is_running', mock_inst_is_running):
@@ -113,7 +113,7 @@ def test_create_env_exists(mock_config):
                     env.create(mock_config)
 
     from termcolor import colored
-    assert(e.value.message == colored(expected_msg.format(env_name), 'red'))
+    assert(e.value.args[0] == colored(expected_msg.format(env_name), 'red'))
     
     return
 

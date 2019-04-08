@@ -179,7 +179,7 @@ def run_command(command, cwd=None):
     (out, err) = tf.communicate()
     if err:
         sys.exit(err)
-        print out
+        print(out)
     return out
 
 

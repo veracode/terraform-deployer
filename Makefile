@@ -1,9 +1,11 @@
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
 help:
+	@echo "build - run 'python setup.py build'"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "clean - clean-{build,pyc}"
+	@echo "install - run 'python setup.py install', will run 'make build'"
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
 	@echo "testall - run tests on every Python version with tox"
@@ -31,10 +33,10 @@ clean-pyc:
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
 
-install:
+install: build
 	python setup.py install > /dev/null
 
-build: install
+build: 
 	python setup.py build > /dev/null
 
 lint:

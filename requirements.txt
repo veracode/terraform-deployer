@@ -1,13 +1,10 @@
-hatchery
-argparse
-clonedigger
 pep8
 pytest-cov
-pytest==3.0.6
-termcolor==1.1.0
-tox==2.6.0
+pytest
+termcolor
+tox
 flake8
-mock==2.0.0
+mock
 moto
 jinja2
 -e .

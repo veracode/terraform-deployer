@@ -121,7 +121,7 @@ def query(config):
         msg += "\n\n{}"
         resources_json = json.dumps(resources,indent=4)
         message = colored(msg.format(env,resources_json), 'red')
-        print message
+        print(message)
 
     return
 
@@ -150,7 +150,7 @@ def create(config):
 
     system_type = config['tags'].get('system_type', None)
     resources = aws.environment_exists(env_name, env_vers, system_type)
-    if resources > 0:
+    if (resources):
         if system_type:
             env = "-".join([system_type, env])
 

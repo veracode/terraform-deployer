@@ -23,15 +23,14 @@ expected_config = {}
 fake_boto3 = MyBoto3.MyBoto3()
 
 
-@pytest.fixture
-def setup_function(scope="function"):
+def clear_env():
     # Stash the existing environment here
     _environment = dict(os.environ)
     os.environ = {}
-    return
+    return (os.environ, _environment)
 
 
-def teardown_function(function):
+def reset_env():
     os.environ = _environment
     return
 
@@ -98,8 +97,10 @@ def mock_vpcs(scope="function"):
 
 @mock_s3
 @mock_ec2
-def test_configure_config(mock_config, setup_function):
+def test_configure_config(mock_config):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
+    
     assert dict(os.environ) == {}
 
     expected_config = {
@@ -136,14 +137,15 @@ def test_configure_config(mock_config, setup_function):
         returned_config = aws.configure(mock_config)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_ec2
-def test_configure_config_with_tags_no_version(mock_config_with_tags,
-                                               setup_function):
+def test_configure_config_with_tags_no_version(mock_config_with_tags):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
     mock_config_with_tags['environment'].pop('version')
     
@@ -187,13 +189,15 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags,
         returned_config = aws.configure(mock_config_with_tags)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_ec2
-def test_configure_config_with_tags(mock_config_with_tags, setup_function):
+def test_configure_config_with_tags(mock_config_with_tags):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
 
     expected_config = {
@@ -237,13 +241,15 @@ def test_configure_config_with_tags(mock_config_with_tags, setup_function):
         returned_config = aws.configure(mock_config_with_tags)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_iam
-def test_configure_env(mock_config, mock_env, setup_function):
+def test_configure_env(mock_config, mock_env):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
 
     # fake_boto3 still required here because mock_iam has not yet
@@ -256,6 +262,7 @@ def test_configure_env(mock_config, mock_env, setup_function):
         aws.configure(mock_config)
         returned_env = dict(os.environ)
     assert returned_env == mock_env
+    reset_env()    
     return
 
 

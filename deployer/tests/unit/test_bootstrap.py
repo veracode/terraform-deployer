@@ -27,7 +27,7 @@ def test_upload_staged_artifacts_undefined():
         bootstrap.upload_staged_artifacts(passed_config)
     expected_msg  = "deployer.bootstrap: Configuration missing key fields. "
     expected_msg += "'staged_artifacts' is a required property"
-    assert e.value.message == expected_msg
+    assert e.value.args[0] == expected_msg
     return
 
 
@@ -44,7 +44,7 @@ def test_upload_staged_artifacts_config_validation_error():
     filename = "deployer.bootstrap"
     expected_msg = "{}: Configuration missing key fields. ".format(filename)
     expected_msg += "'project_config' is a required property"
-    assert(e.value.message == expected_msg)
+    assert(e.value.args[0] == expected_msg)
 
     config_no_staged = { "project_config" : "s3_bucket" }
     with pytest.raises(MissingConfigurationParameterException) as e:
@@ -52,7 +52,7 @@ def test_upload_staged_artifacts_config_validation_error():
     filename = "deployer.bootstrap"
     expected_msg = "{}: Configuration missing key fields. ".format(filename)
     expected_msg += "'staged_artifacts' is a required property"
-    assert(e.value.message == expected_msg)
+    assert(e.value.args[0] == expected_msg)
     return
 
 
@@ -75,7 +75,7 @@ def test_upload_staged_artifacts_no_local_dir():
 
     file_path = os.path.join(pardir,"local_dir/orig_foo")
     expected_msg = "File {} does not exist".format(file_path)
-    assert(e.value.message == expected_msg)
+    assert(e.value.args[0] == expected_msg)
 
     return
 
@@ -136,6 +136,6 @@ def test_upload_staged_artifacts_upload_fails():
                 with patch('deployer.tests.MyBoto3.MyBoto3.S3Class.Object.upload_file', mock_upload):
                     bootstrap.upload_staged_artifacts(config)
 
-    assert e.value.message == expected_error
+    assert e.value.args[0] == expected_error
     return
 

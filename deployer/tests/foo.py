@@ -18,11 +18,11 @@ def foo():
                               {'Key':'env',
                                'Value' : 'myenvname-a'} ])
     filters = [{'Name': 'tag:Name', 'Values': ['myproj-myenvname-a'] }]
-    print "Dumping: client.describe_vpcs()"
-    print json.dumps(client.describe_vpcs(), indent=4)
-    print
-    print "Dumping: client.describe_vpcs(Filters=filters)"
-    print json.dumps(client.describe_vpcs(Filters=filters), indent=4)
+    print("Dumping: client.describe_vpcs()")
+    print(json.dumps(client.describe_vpcs(), indent=4))
+    print("")
+    print("Dumping: client.describe_vpcs(Filters=filters)")
+    print(json.dumps(client.describe_vpcs(Filters=filters), indent=4))
     return
 
 
@@ -36,11 +36,11 @@ def bar():
                                  CallerReference=caller_ref )
 
     zones = r53client.list_hosted_zones_by_name()
-    print "Dumping zones without specifying DNSName:"
-    print json.dumps(zones)
+    print("Dumping zones without specifying DNSName:")
+    print(json.dumps(zones))
     zones2 = r53client.list_hosted_zones_by_name(DNSName=zone_name)
-    print "Dumping zones with specifying DNSName:"
-    print json.dumps(zones2)
+    print("Dumping zones with specifying DNSName:")
+    print(json.dumps(zones2))
     return
 
 
