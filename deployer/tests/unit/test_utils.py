@@ -21,7 +21,7 @@ def setup_teardown(scope="function"):
     # Make sure test environment doesn't exist
     mock_config = {
         "terraform": "git@gitlab.org:group/project.git?branch=made_up_branch",
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1b',

@@ -41,7 +41,7 @@ run_tests:
     - apt-get install -y make
     - pwd
     - cd  ${CI_PROJECT_DIR}
-    - echo pwd
+    - pwd
     - ls -l
     - make CONFIG=~/.aws/config config
     - make install
