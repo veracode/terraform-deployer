@@ -100,7 +100,7 @@ def mock_vpcs(scope="function"):
 def test_configure_config(mock_config):
     # Make sure we start with an empty environment
     (os.environ,_env) = clear_env()
-    
+
     assert dict(os.environ) == {}
 
     expected_config = {
@@ -148,7 +148,7 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
     (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
     mock_config_with_tags['environment'].pop('version')
-    
+
     expected_config = {
         "aws_profile" : "veracode-random",
         "aws_region" : "us-east-1",
@@ -199,7 +199,6 @@ def test_configure_config_with_tags(mock_config_with_tags):
     # Make sure we start with an empty environment
     (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
-
     expected_config = {
         "aws_profile" : "veracode-random",
         "aws_region" : "us-east-1",
@@ -228,7 +227,6 @@ def test_configure_config_with_tags(mock_config_with_tags):
         "project" : 'myproj',
         "route53_tld" : "my.toplevel.domain"
     }
-
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
@@ -251,7 +249,7 @@ def test_configure_env(mock_config, mock_env):
     # Make sure we start with an empty environment
     (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
-
+    
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
@@ -262,7 +260,7 @@ def test_configure_env(mock_config, mock_env):
         aws.configure(mock_config)
         returned_env = dict(os.environ)
     assert returned_env == mock_env
-    reset_env()    
+    reset_env()
     return
 
 

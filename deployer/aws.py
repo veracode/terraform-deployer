@@ -227,7 +227,6 @@ def tag_resources(config):
     env_vers = config['environment'].get('version', None)
     ephemeral_env = config['tags'].get('system_type', None)
         
-
     # Search for all entities with of a given environment name and
     # version AND the deployer_state. deployer_state value is
     # irrellevant, we're going to set it anyway.
@@ -289,6 +288,7 @@ def instance_is_running(arn):
         
     return False
 
+
 def natgateway_exists(arn):
     """
     Checks to see if a nat-gateway really exists or not.
@@ -312,6 +312,7 @@ def natgateway_exists(arn):
 
     return True
     
+
 def vpc_exists(config):
     """
     Checks to see if a VPC named for the current environment exists.
