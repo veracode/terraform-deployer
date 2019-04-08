@@ -35,7 +35,7 @@ class MyBoto3(object):
 
     def iam_stub(self, sub_service_field=None):
         return Mock(list_account_aliases=Mock(return_value={
-            'AccountAliases' : ['veracode-random']}))
+            'AccountAliases' : ['tests-random']}))
 
     def rgtaggingapi_stub(self):
         return self.ResourceGroupsTaggingAPIClass()
