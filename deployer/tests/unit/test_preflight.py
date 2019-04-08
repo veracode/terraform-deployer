@@ -129,7 +129,7 @@ def test_teardown(preconfig, setup_teardown):
     # make sure the tmpdir does not exist.
     expected_file = os.path.join(preconfig['tmpdir'], 'vars.tf')
 
-    session = boto3.Session(profile_name='veracode-random',)
+    session = boto3.Session(profile_name='tests-random',)
     s3client = session.client('s3')
     s3client.create_bucket(Bucket=setup_teardown['project_config'])
     s3client.put_object(Bucket=setup_teardown['project_config'],
