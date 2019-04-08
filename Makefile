@@ -1,4 +1,5 @@
 CONFIG="/tmp/foo"
+DIR:=$(shell dirname ${CONFIG})
 
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
 
@@ -38,6 +39,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 config:
+	mkdir -p ${DIR}
 	echo '[default]' >> ${CONFIG}
 	echo 'region = us-east-1' >> ${CONFIG}
 	echo '' >> ${CONFIG}
