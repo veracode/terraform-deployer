@@ -40,9 +40,11 @@ clean-pyc:
 
 config:
 	mkdir -p ${DIR}
-	echo '[default]' >> ${CONFIG}
-	echo 'region = us-east-1' >> ${CONFIG}
+	echo '[default]' >> ${DIR}/config
+	echo 'region = us-east-1' >> ${DIR}/config
 	echo '' >> ${CONFIG}
+	echo 'aws_access_key_id=XXXXXXXXXXXXXXXXXXXX' >> ${DIR}/credentials
+	echo 'aws_secret_access_key=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' >> ${DIR}/credentials
 
 install: build
 	python setup.py install > /dev/null
