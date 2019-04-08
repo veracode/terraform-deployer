@@ -248,7 +248,7 @@ def tag_resources(config):
             arn = resource['ResourceARN'].split(':')
             if ( (arn[5].startswith('instance') and instance_is_running(arn[5]))
                  or (arn[5].startswith('nat') and natgateway_exists(arn[5]))):
-                    resourceArns.append(resource['ResourceARN'])
+                resourceArns.append(resource['ResourceARN'])
             else:
                 # If it's not an instance, we'll deal with it anyway.
                 resourceArns.append(resource['ResourceARN'])
