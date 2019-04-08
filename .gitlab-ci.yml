@@ -43,6 +43,7 @@ run_tests:
     - cd  ${CI_PROJECT_DIR}
     - echo pwd
     - ls -l
+    - make CONFIG=~/.aws/config config
     - make install
     - make lint
     - make test

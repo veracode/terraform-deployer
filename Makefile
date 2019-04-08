@@ -1,10 +1,14 @@
+CONFIG="/tmp/foo"
+
 .PHONY: help clean clean-pyc clean-build list test test-all coverage docs release sdist
+
 
 help:
 	@echo "build - run 'python setup.py build'"
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
 	@echo "clean - clean-{build,pyc}"
+	@echo "config - run configure-aws.sh. WARNING- Don't do this!"
 	@echo "install - run 'python setup.py install', will run 'make build'"
 	@echo "lint - check style with flake8"
 	@echo "test - run tests quickly with the default Python"
@@ -32,6 +36,11 @@ clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
 	find . -name '*~' -exec rm -f {} +
+
+config:
+	echo '[default]' >> ${CONFIG}
+	echo 'region = us-east-1' >> ${CONFIG}
+	echo '' >> ${CONFIG}
 
 install: build
 	python setup.py install > /dev/null
