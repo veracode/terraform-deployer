@@ -38,12 +38,13 @@ install: build
 
 build: 
 	python setup.py build > /dev/null
+	pip install -r requirements.txt
 
 lint:
-	flake8 neo test
+	flake8
 
 test:
-	py.test
+	pytest --disable-warnings
 
 testall:
 	tox

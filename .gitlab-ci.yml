@@ -11,6 +11,7 @@ services:
   - docker:dind
 
 stages:
+  - test
   - build
   - tag
 
@@ -31,6 +32,22 @@ auto_tag_repo:
   script:
     - tag-repo
 
+run_tests:
+  stage: test
+  image: python:3-slim
+  when: always
+  script:
+    - apt-get update
+    - apt-get install -y make
+    - pwd
+    - cd  ${CI_PROJECT_DIR}
+    - echo pwd
+    - ls -l
+    - make install
+    - make lint
+    - make test
+    - make testall
+  
 build_container_dev:
   stage: build
   image: docker:18-dind
@@ -43,6 +60,7 @@ build_container_dev:
   script:
     - *build_script
 
+ 
 build_container_prod:
   stage: build
   image: docker:18-dind
