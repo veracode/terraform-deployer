@@ -16,7 +16,7 @@ class MyBoto3(object):
 
     def setup_default_session(self, **kwargs):
         return
-    
+
     def resource(self, service_name):
         return self.client(service_name)
 
@@ -76,7 +76,7 @@ class MyBoto3(object):
                                 "Key": "product",
                                 "Value": "mock_product"
                             }
-                            
+
                         ]
                     }
                 ],
@@ -92,7 +92,7 @@ class MyBoto3(object):
                     }
                 }
             }
-            
+
             not_exists = { u'ResourceTagMappingList': [] }
 
             if ( kwargs['TagFilters'][0]['Values'][0] == 'myenvname' and
@@ -212,74 +212,74 @@ class MyBoto3(object):
             return {
                 "Vpcs": [
                     {
-                        "VpcId": "vpc-0bb4489428cd9b094", 
-                        "InstanceTenancy": "default", 
+                        "VpcId": "vpc-0bb4489428cd9b094",
+                        "InstanceTenancy": "default",
                         "Tags": [
                             {
                                 "Value": "myenvname-a",
                                 "Key": "env"
-                            } 
-                        ], 
+                            }
+                        ],
                         "CidrBlockAssociationSet": [
                             {
-                                "AssociationId": "vpc-cidr-assoc-0679475cbd9438295", 
-                                "CidrBlock": "10.0.0.0/16", 
+                                "AssociationId": "vpc-cidr-assoc-0679475cbd9438295",
+                                "CidrBlock": "10.0.0.0/16",
                                 "CidrBlockState": {
                                     "State": "associated"
                                 }
                             }
-                        ], 
-                        "State": "available", 
-                        "DhcpOptionsId": "dopt-0da865122e82c2d93", 
-                        "CidrBlock": "10.0.0.0/16", 
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-0da865122e82c2d93",
+                        "CidrBlock": "10.0.0.0/16",
                         "IsDefault": "false"
-                    }, 
+                    },
                     {
-                        "VpcId": "vpc-0eff31da1af34f90d", 
-                        "InstanceTenancy": "default", 
+                        "VpcId": "vpc-0eff31da1af34f90d",
+                        "InstanceTenancy": "default",
                         "Tags": [
                             {
                                 "Value": "myenvname-b",
                                 "Key": "env"
-                            } 
-                        ], 
+                            }
+                        ],
                         "CidrBlockAssociationSet": [
                             {
-                                "AssociationId": "vpc-cidr-assoc-0be9f46f7fc166830", 
-                                "CidrBlock": "10.0.0.0/16", 
+                                "AssociationId": "vpc-cidr-assoc-0be9f46f7fc166830",
+                                "CidrBlock": "10.0.0.0/16",
                                 "CidrBlockState": {
                                     "State": "associated"
                                 }
                             }
-                        ], 
-                        "State": "available", 
-                        "DhcpOptionsId": "dopt-09e0f6acc98d4ca96", 
-                        "CidrBlock": "10.0.0.0/16", 
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-09e0f6acc98d4ca96",
+                        "CidrBlock": "10.0.0.0/16",
                         "IsDefault": "false"
-                    }, 
+                    },
                     {
-                        "VpcId": "vpc-0fb028c2c710b61dc", 
-                        "InstanceTenancy": "default", 
+                        "VpcId": "vpc-0fb028c2c710b61dc",
+                        "InstanceTenancy": "default",
                         "Tags": [
                             {
                                 "Value": "myenvname-c",
                                 "Key": "env"
-                            } 
-                        ], 
+                            }
+                        ],
                         "CidrBlockAssociationSet": [
                             {
-                                "AssociationId": "vpc-cidr-assoc-0f884cd649978b13d", 
-                                "CidrBlock": "10.0.0.0/16", 
+                                "AssociationId": "vpc-cidr-assoc-0f884cd649978b13d",
+                                "CidrBlock": "10.0.0.0/16",
                                 "CidrBlockState": {
                                     "State": "associated"
                                 }
                             }
-                        ], 
-                        "State": "available", 
-                        "DhcpOptionsId": "dopt-0fc63671184a00390", 
-                        "CidrBlock": "10.0.0.0/16", 
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-0fc63671184a00390",
+                        "CidrBlock": "10.0.0.0/16",
                         "IsDefault": "false"
                     }
                 ]
             }
-        
+

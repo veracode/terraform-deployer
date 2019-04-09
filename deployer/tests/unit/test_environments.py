@@ -59,7 +59,11 @@ def mock_config(scope="function"):
 
 @mock_ec2
 def mock_vpcs(scope="function"):
-    ec2c = boto3.client('ec2')
+    ec2c = boto3.client('ec2',
+                        region_name='us-east-1',
+                        aws_access_key_id='',
+                        aws_secret_access_key='',
+                        aws_session_token='')
     vpc1 = ec2c.create_vpc(CidrBlock='10.1.0.0/16').get('Vpc').get('VpcId')
     vpc2 = ec2c.create_vpc(CidrBlock='10.2.0.0/16').get('Vpc').get('VpcId')
     vpc3 = ec2c.create_vpc(CidrBlock='10.3.0.0/16').get('Vpc').get('VpcId')
@@ -151,7 +155,8 @@ def test_precheck_invalid_key(mock_config):
 def test_list_deployed_environment_versions(mock_config):
     mock_vpcs()
     env_name = mock_config['environment']['name']
-    existing_env_versions = env.list_deployed_environment_versions(env_name)
+    with patch('deployer.aws.boto3', fake_boto3):
+        existing_env_versions = env.list_deployed_environment_versions(env_name)
 
     assert existing_env_versions == [ 'a', 'b', 'c' ]
     return

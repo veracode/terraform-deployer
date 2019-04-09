@@ -139,11 +139,7 @@ def test_configure_config(mock_config):
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
     mock = mock_s3()
     mock.start()
-    s3client = boto3.client('s3',
-                            region_name='us-east-1',
-                            aws_access_key_id='',
-                            aws_secret_access_key='',
-                            aws_session_token='')
+    s3client = boto3.client('s3')
 
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
@@ -174,7 +170,7 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
             'us-east-1c',
             'us-east-1d',
             'us-east-1e',
-            'us-east-1f'            
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -203,11 +199,7 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
     mock = mock_s3()
     mock.start()
-    s3client = boto3.client('s3',
-                            region_name='us-east-1',
-                            aws_access_key_id='',
-                            aws_secret_access_key='',
-                            aws_session_token='')
+    s3client = boto3.client('s3')
 
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
@@ -236,7 +228,7 @@ def test_configure_config_with_tags(mock_config_with_tags):
             'us-east-1c',
             'us-east-1d',
             'us-east-1e',
-            'us-east-1f'            
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -263,11 +255,7 @@ def test_configure_config_with_tags(mock_config_with_tags):
     # in aws.configure().
     mock = mock_s3()
     mock.start()
-    s3client = boto3.client('s3',
-                            region_name='us-east-1',
-                            aws_access_key_id='',
-                            aws_secret_access_key='',
-                            aws_session_token='')
+    s3client = boto3.client('s3')
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
     with patch('deployer.aws.boto3', fake_boto3):
@@ -286,7 +274,7 @@ def test_configure_env(mock_config, mock_env):
     # Make sure we start with an empty environment
     (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
-    
+
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().

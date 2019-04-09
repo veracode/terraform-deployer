@@ -40,9 +40,13 @@ clean-pyc:
 
 config:
 	mkdir -p ${DIR}
-	echo '[default]' >> ${DIR}/config
+	echo '[default]' > ${DIR}/config
 	echo 'region = us-east-1' >> ${DIR}/config
 	echo '' >> ${DIR}/config
+	echo '[default]' > ${DIR}/credentials
+	echo 'aws_access_key_id=XXXXXXXXXXXXXXXXXXXX' >> ${DIR}/credentials
+	echo 'aws_secret_access_key=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' >> ${DIR}/credentials
+	echo '' >> ${DIR}/credentials
 	echo '[tests-random]' >> ${DIR}/credentials
 	echo 'aws_access_key_id=XXXXXXXXXXXXXXXXXXXX' >> ${DIR}/credentials
 	echo 'aws_secret_access_key=YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY' >> ${DIR}/credentials

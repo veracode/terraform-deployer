@@ -55,9 +55,8 @@ def preconfig(setup_teardown):
 
 @mock_route53
 @mock_s3
-def test_setup(setup_teardown):
+def test_setup0(setup_teardown):
     expected_file = os.path.join(setup_teardown['tmpdir'], 'vars.tf')
-
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket=setup_teardown['project_config'])
     s3client.create_bucket(Bucket=setup_teardown['tf_state_bucket'])
