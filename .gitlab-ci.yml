@@ -40,7 +40,7 @@ run_tests:
     - apt-get update
     - apt-get install -y make
     - cd  ${CI_PROJECT_DIR}
-    - make CONFIG =~/.aws/config config
+    - make CONFIG=~/.aws/config config
     - make install
     - make lint
     - make test
@@ -60,7 +60,6 @@ build_container_dev:
   script:
     - *build_script
 
- 
 build_container_prod:
   stage: build
   image: docker:18-dind
