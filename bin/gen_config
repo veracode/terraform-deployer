@@ -148,7 +148,7 @@ def printHelp(msg, parser):
     if msg:
         print("\nERROR: ",msg,"\n")
     parser.print_usage()
-    print msg
+    print(msg)
     sys.exit(1)
 
 
