@@ -18,7 +18,7 @@ fake_boto3 = MyBoto3.MyBoto3()
 
 
 def mock_run_cmd(args, cwd=None):
-    print "CWD: {}, Running command: {}".format(cwd, " ".join(args))
+    print("CWD: {}, Running command: {}".format(cwd, " ".join(args)))
     return 0
 
 
@@ -30,7 +30,7 @@ def mock_inst_is_running(instance_id):
 def mock_config(scope="function"):
     return {
         "terraform": "git@gitlab.org:group/project.git?branch=made_up_branch",
-        "aws_profile": "veracode-random",
+        "aws_profile": "tests-random",
         "aws_region": "us-east-1",
         "availability_zones": [
             'us-east-1b',
@@ -44,7 +44,7 @@ def mock_config(scope="function"):
             "version": "a",
         },
         'tags': {
-            'product' : 'mock_product'
+            'system_type' : 'mock_product'
         },
         "env_name": "myenvname-a",
         "tf_state": "myenvname-a.tfstate",
@@ -59,7 +59,11 @@ def mock_config(scope="function"):
 
 @mock_ec2
 def mock_vpcs(scope="function"):
-    ec2c = boto3.client('ec2')
+    ec2c = boto3.client('ec2',
+                        region_name='us-east-1',
+                        aws_access_key_id='',
+                        aws_secret_access_key='',
+                        aws_session_token='')
     vpc1 = ec2c.create_vpc(CidrBlock='10.1.0.0/16').get('Vpc').get('VpcId')
     vpc2 = ec2c.create_vpc(CidrBlock='10.2.0.0/16').get('Vpc').get('VpcId')
     vpc3 = ec2c.create_vpc(CidrBlock='10.3.0.0/16').get('Vpc').get('VpcId')
@@ -90,8 +94,8 @@ def test_create_env_exists(mock_config):
     expected_msg += "\n\n{}".format(json.dumps(expected_arn, indent=4))
         
     env_name = mock_config['env_name']
-    if 'tags' in mock_config and 'product' in mock_config['tags']:
-        env_name = "-".join([mock_config['tags']['product'], env_name ])
+    if 'tags' in mock_config and 'system_type' in mock_config['tags']:
+        env_name = "-".join([mock_config['tags']['system_type'], env_name ])
         
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket="123456789012-myproj-tfstate")
@@ -104,7 +108,7 @@ def test_create_env_exists(mock_config):
                                  'Value' : 'myproj-myenvname-a'},
                                 {'Key':'env',
                                  'Value' : 'myenvname-a'},
-                                {'Key' : 'product',
+                                {'Key' : 'system_type',
                                  'Value' : 'mock_product'} ])
 
         with patch('deployer.aws.instance_is_running', mock_inst_is_running):
@@ -113,7 +117,7 @@ def test_create_env_exists(mock_config):
                     env.create(mock_config)
 
     from termcolor import colored
-    assert(e.value.message == colored(expected_msg.format(env_name), 'red'))
+    assert(e.value.args[0] == colored(expected_msg.format(env_name), 'red'))
     
     return
 
@@ -151,7 +155,8 @@ def test_precheck_invalid_key(mock_config):
 def test_list_deployed_environment_versions(mock_config):
     mock_vpcs()
     env_name = mock_config['environment']['name']
-    existing_env_versions = env.list_deployed_environment_versions(env_name)
+    with patch('deployer.aws.boto3', fake_boto3):
+        existing_env_versions = env.list_deployed_environment_versions(env_name)
 
     assert existing_env_versions == [ 'a', 'b', 'c' ]
     return
