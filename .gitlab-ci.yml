@@ -36,6 +36,8 @@ run_tests:
   stage: test
   image: python:3-slim
   when: always
+  except:
+    - tags
   script:
     - apt-get update
     - apt-get install -y make
