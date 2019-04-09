@@ -35,7 +35,7 @@ def main():
 
     newConfig = config
     if opts.override:
-        newConfig = dict(config.items() + opts.override.items())
+        newConfig = { **config, **opts }
 
     if ( newConfig['environment'].has_key('version') and
          newConfig['environment']['version'] == 'GET_NEXT'):
