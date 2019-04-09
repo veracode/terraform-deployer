@@ -153,7 +153,6 @@ def get_current_az_list(config):
         List of strings
     """
     avail_zones = config.get('availability_zones', [])
-
     if not avail_zones:
         ec2c = boto3.client('ec2')
         for zone in ec2c.describe_availability_zones()['AvailabilityZones']:
@@ -227,7 +226,6 @@ def tag_resources(config):
     env_vers = config['environment'].get('version', None)
     ephemeral_env = config['tags'].get('system_type', None)
         
-
     # Search for all entities with of a given environment name and
     # version AND the deployer_state. deployer_state value is
     # irrellevant, we're going to set it anyway.
@@ -249,7 +247,7 @@ def tag_resources(config):
             arn = resource['ResourceARN'].split(':')
             if ( (arn[5].startswith('instance') and instance_is_running(arn[5]))
                  or (arn[5].startswith('nat') and natgateway_exists(arn[5]))):
-                    resourceArns.append(resource['ResourceARN'])
+                resourceArns.append(resource['ResourceARN'])
             else:
                 # If it's not an instance, we'll deal with it anyway.
                 resourceArns.append(resource['ResourceARN'])
@@ -289,6 +287,7 @@ def instance_is_running(arn):
         
     return False
 
+
 def natgateway_exists(arn):
     """
     Checks to see if a nat-gateway really exists or not.
@@ -312,6 +311,7 @@ def natgateway_exists(arn):
 
     return True
     
+
 def vpc_exists(config):
     """
     Checks to see if a VPC named for the current environment exists.

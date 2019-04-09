@@ -21,7 +21,7 @@ def setup_teardown(scope="function"):
     # Make sure test environment doesn't exist
     mock_config = {
         "terraform": "git@gitlab.org:group/project.git?branch=made_up_branch",
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1b',
@@ -73,12 +73,12 @@ def test_validate_env_name_num_tokens():
     except_msg += "Environment name can not be undefined"
     with pytest.raises(EnvironmentNameException) as e:
         utils.validate_env_name(too_few_tokens)
-    assert(e.value.message == except_msg)
+    assert(e.value.args[0] == except_msg)
 
     except_msg = "Incorrect number of tokens. Should be 1 or 2 tokens, not {}"
     with pytest.raises(EnvironmentNameException) as e:
         utils.validate_env_name(too_many_tokens)
-    assert(e.value.message == except_msg.format(len(too_many_tokens.split('-'))))
+    assert(e.value.args[0] == except_msg.format(len(too_many_tokens.split('-'))))
 
 
 def test_validate_env_name_length():
@@ -90,7 +90,7 @@ def test_validate_env_name_length():
     except_msg = "Environment Name too long: {} characters. Limit: 20."
     with pytest.raises(EnvironmentNameException) as e:
         utils.validate_env_name(bad_name)
-    assert (e.value.message == (except_msg.format(len(bad_name))))
+    assert (e.value.args[0] == (except_msg.format(len(bad_name))))
 
 
 def test_validate_env_name_version_is_char():
@@ -106,12 +106,12 @@ def test_validate_env_name_version_is_char():
 
     with pytest.raises(EnvironmentNameException) as e:
         utils.validate_env_name(bad_name_double_char)
-    assert (e.value.message == msg_double_char)
+    assert (e.value.args[0] == msg_double_char)
 
     with pytest.raises(EnvironmentNameException) as e:
         #pytest.set_trace()
         utils.validate_env_name(bad_name_number)
-    assert (e.value.message == msg_number)
+    assert (e.value.args[0] == msg_number)
 
 
 @pytest.fixture
@@ -152,7 +152,7 @@ def test_validate_schema_missing_required_property(basic_schema):
         basic_config = utils.load_vars(basic_incomplete_config)
         utils.validate_schema(basic_config, basic_schema_file)
 
-    assert e.value.message == "u'aws_profile' is a required property"
+    assert e.value.args[0] == "'aws_profile' is a required property"
 
 
 def test_validate_tf_schema_good(terraform_schema):
@@ -174,14 +174,13 @@ def test_validate_tf_schema_missing_required_property(terraform_schema):
                                             'terraform_incomplete_data.json')
         tf_config = utils.load_vars(tf_incomplete_config)
         utils.validate_schema(tf_config, tf_schema_file)
-    assert e.value.message == "u'public_zone_id' is a required property"
+    assert e.value.args[0] == "'public_zone_id' is a required property"
 
 
 def test_git_pull():
     repo = "/some/local/path"
     expected_cmd = ['git', 'pull']
     returned_cmd = utils.git_pull(repo)
-
     assert returned_cmd == expected_cmd
 
     
@@ -196,7 +195,6 @@ def test_git_clone_with_branch():
                     repo]
 
     return_cmd = utils.git_clone(repo, branch)
-
     assert expected_cmd == return_cmd
 
 

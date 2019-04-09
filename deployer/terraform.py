@@ -68,7 +68,7 @@ def plan(config, action):
     """
     tf_command = ['terraform', 'plan']
     if action == 'destroy':
-            tf_command = ['terraform', 'plan', '-destroy']
+        tf_command = ['terraform', 'plan', '-destroy']
 
     tf_command += default_cmdline_options(config)
     return tf_command

@@ -16,7 +16,7 @@ class MyBoto3(object):
 
     def setup_default_session(self, **kwargs):
         return
-    
+
     def resource(self, service_name):
         return self.client(service_name)
 
@@ -31,11 +31,11 @@ class MyBoto3(object):
 
     @mock_ec2
     def ec2_stub(self):
-        return boto3.client('ec2')
+        return self.ec2Class()
 
     def iam_stub(self, sub_service_field=None):
         return Mock(list_account_aliases=Mock(return_value={
-            'AccountAliases' : ['veracode-random']}))
+            'AccountAliases' : ['tests-random']}))
 
     def rgtaggingapi_stub(self):
         return self.ResourceGroupsTaggingAPIClass()
@@ -76,7 +76,7 @@ class MyBoto3(object):
                                 "Key": "product",
                                 "Value": "mock_product"
                             }
-                            
+
                         ]
                     }
                 ],
@@ -92,7 +92,7 @@ class MyBoto3(object):
                     }
                 }
             }
-            
+
             not_exists = { u'ResourceTagMappingList': [] }
 
             if ( kwargs['TagFilters'][0]['Values'][0] == 'myenvname' and
@@ -158,3 +158,128 @@ class MyBoto3(object):
 
             def upload_file(self, file):
                 return True
+
+    class ec2Class():
+        def __init__(self):
+            return
+
+        def client(self):
+            return self.client
+
+        def describe_availability_zones(self, **kwargs):
+            return {
+                "AvailabilityZones": [
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1a",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    },
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1b",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    },
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1c",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    },
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1d",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    },
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1e",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    },
+                    {
+                        "State": "available",
+                        "ZoneName": "us-east-1f",
+                        "Messages": [],
+                        "RegionName": "us-east-1"
+                    }
+                ]
+            }
+
+        def describe_vpcs(self, **kwargs):
+            return {
+                "Vpcs": [
+                    {
+                        "VpcId": "vpc-0bb4489428cd9b094",
+                        "InstanceTenancy": "default",
+                        "Tags": [
+                            {
+                                "Value": "myenvname-a",
+                                "Key": "env"
+                            }
+                        ],
+                        "CidrBlockAssociationSet": [
+                            {
+                                "AssociationId": "vpc-cidr-assoc-0679475cbd9438295",
+                                "CidrBlock": "10.0.0.0/16",
+                                "CidrBlockState": {
+                                    "State": "associated"
+                                }
+                            }
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-0da865122e82c2d93",
+                        "CidrBlock": "10.0.0.0/16",
+                        "IsDefault": "false"
+                    },
+                    {
+                        "VpcId": "vpc-0eff31da1af34f90d",
+                        "InstanceTenancy": "default",
+                        "Tags": [
+                            {
+                                "Value": "myenvname-b",
+                                "Key": "env"
+                            }
+                        ],
+                        "CidrBlockAssociationSet": [
+                            {
+                                "AssociationId": "vpc-cidr-assoc-0be9f46f7fc166830",
+                                "CidrBlock": "10.0.0.0/16",
+                                "CidrBlockState": {
+                                    "State": "associated"
+                                }
+                            }
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-09e0f6acc98d4ca96",
+                        "CidrBlock": "10.0.0.0/16",
+                        "IsDefault": "false"
+                    },
+                    {
+                        "VpcId": "vpc-0fb028c2c710b61dc",
+                        "InstanceTenancy": "default",
+                        "Tags": [
+                            {
+                                "Value": "myenvname-c",
+                                "Key": "env"
+                            }
+                        ],
+                        "CidrBlockAssociationSet": [
+                            {
+                                "AssociationId": "vpc-cidr-assoc-0f884cd649978b13d",
+                                "CidrBlock": "10.0.0.0/16",
+                                "CidrBlockState": {
+                                    "State": "associated"
+                                }
+                            }
+                        ],
+                        "State": "available",
+                        "DhcpOptionsId": "dopt-0fc63671184a00390",
+                        "CidrBlock": "10.0.0.0/16",
+                        "IsDefault": "false"
+                    }
+                ]
+            }
+

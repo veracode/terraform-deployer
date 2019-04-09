@@ -52,7 +52,7 @@ def main():
     # Validate final config passed to terraform before we write it out
     utils.validate_schema(newConfig, opts.schema)
     write_vars(newConfig, varfile=opts.outfile)
-    print json.dumps(newConfig, indent=4)
+    print(json.dumps(newConfig, indent=4))
 
 
 def parseArgs(argv):
@@ -146,7 +146,7 @@ be intended for consumption by the deployer utility.
 
 def printHelp(msg, parser):
     if msg:
-        print "\nERROR: ",msg,"\n"
+        print("\nERROR: ",msg,"\n")
     parser.print_usage()
     print msg
     sys.exit(1)

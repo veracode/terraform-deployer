@@ -23,22 +23,21 @@ expected_config = {}
 fake_boto3 = MyBoto3.MyBoto3()
 
 
-@pytest.fixture
-def setup_function(scope="function"):
+def clear_env():
     # Stash the existing environment here
     _environment = dict(os.environ)
     os.environ = {}
-    return
+    return (os.environ, _environment)
 
 
-def teardown_function(function):
+def reset_env():
     os.environ = _environment
     return
 
 
 @pytest.fixture
 def mock_config(scope="function"):
-    return { "aws_profile" : "veracode-random",
+    return { "aws_profile" : "tests-random",
              "aws_region"  : "us-east-1",
              "environment" : {
                  "name" : "myenvname",
@@ -50,7 +49,7 @@ def mock_config(scope="function"):
 
 @pytest.fixture
 def mock_config_with_tags(scope="function"):
-    return { "aws_profile" : "veracode-random",
+    return { "aws_profile" : "tests-random",
              "aws_region"  : "us-east-1",
              "tags" : {
                  "key1" : "value1",
@@ -67,14 +66,18 @@ def mock_config_with_tags(scope="function"):
 @pytest.fixture
 def mock_env(scope="function"):
     return {
-        "AWS_DEFAULT_PROFILE" : "veracode-random",
-        "AWS_PROFILE" : "veracode-random",
+        "AWS_DEFAULT_PROFILE" : "tests-random",
+        "AWS_PROFILE" : "tests-random",
         "AWS_DEFAULT_REGION" : "us-east-1"}
 
 
 @mock_ec2
 def mock_vpcs(scope="function"):
-    ec2c = boto3.client('ec2')
+    ec2c = boto3.client('ec2',
+                        region_name='us-east-1',
+                        aws_access_key_id='',
+                        aws_secret_access_key='',
+                        aws_session_token='')
     vpc1 = ec2c.create_vpc(CidrBlock='10.1.0.0/16').get('Vpc').get('VpcId')
     vpc2 = ec2c.create_vpc(CidrBlock='10.2.0.0/16').get('Vpc').get('VpcId')
     vpc3 = ec2c.create_vpc(CidrBlock='10.3.0.0/16').get('Vpc').get('VpcId')
@@ -98,17 +101,22 @@ def mock_vpcs(scope="function"):
 
 @mock_s3
 @mock_ec2
-def test_configure_config(mock_config, setup_function):
+def test_configure_config(mock_config):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
+
     assert dict(os.environ) == {}
 
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -127,7 +135,12 @@ def test_configure_config(mock_config, setup_function):
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
+    os.environ['AWS_ACCESS_KEY_ID'] = 'foo'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
+    mock = mock_s3()
+    mock.start()
     s3client = boto3.client('s3')
+
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
     with patch('deployer.aws.boto3', fake_boto3):
@@ -136,24 +149,28 @@ def test_configure_config(mock_config, setup_function):
         returned_config = aws.configure(mock_config)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_ec2
-def test_configure_config_with_tags_no_version(mock_config_with_tags,
-                                               setup_function):
+def test_configure_config_with_tags_no_version(mock_config_with_tags):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
     mock_config_with_tags['environment'].pop('version')
-    
+
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -178,31 +195,40 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags,
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
+    os.environ['AWS_ACCESS_KEY_ID'] = 'foo'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
+    mock = mock_s3()
+    mock.start()
     s3client = boto3.client('s3')
+
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
+    # We need to create the bucket since this is all in Moto's 'virtual'
+    # AWS account
     with patch('deployer.aws.boto3', fake_boto3):
-        # We need to create the bucket since this is all in Moto's 'virtual'
-        # AWS account
         returned_config = aws.configure(mock_config_with_tags)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_ec2
-def test_configure_config_with_tags(mock_config_with_tags, setup_function):
+def test_configure_config_with_tags(mock_config_with_tags):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
-
     expected_config = {
-        "aws_profile" : "veracode-random",
+        "aws_profile" : "tests-random",
         "aws_region" : "us-east-1",
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -224,10 +250,11 @@ def test_configure_config_with_tags(mock_config_with_tags, setup_function):
         "project" : 'myproj',
         "route53_tld" : "my.toplevel.domain"
     }
-
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
+    mock = mock_s3()
+    mock.start()
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
@@ -237,40 +264,44 @@ def test_configure_config_with_tags(mock_config_with_tags, setup_function):
         returned_config = aws.configure(mock_config_with_tags)
     assert returned_config == expected_config
 
+    reset_env()
     return
 
 
 @mock_s3
 @mock_iam
-def test_configure_env(mock_config, mock_env, setup_function):
+def test_configure_env(mock_config, mock_env):
     # Make sure we start with an empty environment
+    (os.environ,_env) = clear_env()
     assert dict(os.environ) == {}
 
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
     with patch('deployer.aws.boto3', fake_boto3):
-        session = boto3.Session(profile_name='veracode-random')
+        session = boto3.Session(profile_name='tests-random')
         s3client = session.client('s3')
         s3client.create_bucket(Bucket="123456789012-myproj-data")
         aws.configure(mock_config)
         returned_env = dict(os.environ)
     assert returned_env == mock_env
+    reset_env()
     return
 
 
 @mock_iam
-def test_get_account_name():
+def test_get_account_name(mock_config):
     '''list_account_aliases() Not yet implemented.'''
-    # assert aws.get_account_name()
-    # return
-    pass
+    with patch('deployer.aws.boto3', fake_boto3):
+        assert aws.get_account_name() == mock_config['aws_profile']
+    return
 
 
 @mock_sts
 def test_get_account_id(mock_config):
     mock_config['account_id'] = "123456789012"
-    returned_id = aws.get_account_id()
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_id = aws.get_account_id()
     assert returned_id == mock_config['account_id']
     return
 
@@ -301,7 +332,9 @@ def test_get_current_az_list_no_list():
                       "us-east-1d",
                       "us-east-1e",
                       "us-east-1f"]
-    returned_zones = aws.get_current_az_list(passed_config)
+
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_zones = aws.get_current_az_list(passed_config)
 
     for zone in returned_zones:
         assert zone in expected_zones
@@ -315,7 +348,8 @@ def test_list_vpcs(mock_config):
 
     # Create our mock VPCs.
     mock_vpcs()
-    returned_vpcs = aws.list_vpcs(env)
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_vpcs = aws.list_vpcs(env)
     assert returned_vpcs == expected_vpcs
     return
 

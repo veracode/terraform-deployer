@@ -1,4 +1,4 @@
-FROM python:2-slim
+FROM python:3-slim
 MAINTAINER @pllsaph
 
 RUN apt-get update > /dev/null

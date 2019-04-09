@@ -45,19 +45,18 @@ def setup_teardown(scope="function"):
 @pytest.fixture
 def preconfig(setup_teardown):
     # Make sure test environment exists so we can test cleanup
-    print "\nIn preconfig()"
+    print("\nIn preconfig()")
     workdir.options.path = setup_teardown['tmpdir']
     workdir.create()
 
-    print "passed_config['tmpdir'] = {}".format(setup_teardown['tmpdir'])
+    print("passed_config['tmpdir'] = {}".format(setup_teardown['tmpdir']))
     return setup_teardown
 
 
 @mock_route53
 @mock_s3
-def test_setup(setup_teardown):
+def test_setup0(setup_teardown):
     expected_file = os.path.join(setup_teardown['tmpdir'], 'vars.tf')
-
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket=setup_teardown['project_config'])
     s3client.create_bucket(Bucket=setup_teardown['tf_state_bucket'])
@@ -129,7 +128,7 @@ def test_teardown(preconfig, setup_teardown):
     # make sure the tmpdir does not exist.
     expected_file = os.path.join(preconfig['tmpdir'], 'vars.tf')
 
-    session = boto3.Session(profile_name='veracode-random',)
+    session = boto3.Session(profile_name='tests-random',)
     s3client = session.client('s3')
     s3client.create_bucket(Bucket=setup_teardown['project_config'])
     s3client.put_object(Bucket=setup_teardown['project_config'],
@@ -137,7 +136,7 @@ def test_teardown(preconfig, setup_teardown):
 
     preflight.teardown(preconfig)
 
-    print "expected file = {}".format(expected_file)
+    print("expected file = {}".format(expected_file))
     assert not os.path.isdir(preconfig['tmpdir'])
     assert not os.path.exists(expected_file)
 

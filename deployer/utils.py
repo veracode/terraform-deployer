@@ -158,7 +158,7 @@ def run_command(command, cwd=None):
     (out, err) = cmd.communicate()
     if err:
         sys.exit(err)
-        print out
+        print(out)
         
     if cmd.returncode != 0:
         logger.error("{} failed with code {}.".format(command, cmd.returncode))
@@ -321,7 +321,7 @@ def parseConfigOpts(configVars):
     for item in configVars:
         try:
             value = json.loads(item)
-            newConfigVars = dict(newConfigVars.items() + value.items())
+            newConfigVars = { **newConfigVars, **value }
         except ValueError as e:
             k,v = item.split('=')
             newConfigVars[k] = v

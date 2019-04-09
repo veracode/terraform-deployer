@@ -98,7 +98,7 @@ def upload_staged_artifacts(config):
             log_msg = "Error uploading {} to {}/{}: {}".format(source_file,
                                                                bucket_name,
                                                                bucket_key,
-                                                               v.message)
+                                                               v.args[0])
             logger.critical(log_msg)
             raise ValueError(log_msg)
 
