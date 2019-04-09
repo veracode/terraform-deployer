@@ -39,11 +39,8 @@ run_tests:
   script:
     - apt-get update
     - apt-get install -y make
-    - pwd
     - cd  ${CI_PROJECT_DIR}
-    - pwd
-    - ls -l
-    - make CONFIG=~/.aws/config config
+    - make CONFIG =~/.aws/config config
     - make install
     - make lint
     - make test
@@ -52,7 +49,9 @@ run_tests:
 build_container_dev:
   stage: build
   image: docker:18-dind
-  when: always
+  dependencies:
+    - run_tests
+  when: on_success
   except:
     - tags
     - master
@@ -65,7 +64,9 @@ build_container_dev:
 build_container_prod:
   stage: build
   image: docker:18-dind
-  when: always
+  dependencies:
+    - run_tests
+  when: on_success
   only:
     - tags
   before_script:
