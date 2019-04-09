@@ -47,6 +47,8 @@ run_tests:
     - make lint
     - make test
     - make testall
+    - deployer --help
+    - gen_config --help
   
 build_container_dev:
   stage: build
