@@ -73,7 +73,11 @@ def mock_env(scope="function"):
 
 @mock_ec2
 def mock_vpcs(scope="function"):
-    ec2c = boto3.client('ec2')
+    ec2c = boto3.client('ec2',
+                        region_name='us-east-1',
+                        aws_access_key_id='',
+                        aws_secret_access_key='',
+                        aws_session_token='')
     vpc1 = ec2c.create_vpc(CidrBlock='10.1.0.0/16').get('Vpc').get('VpcId')
     vpc2 = ec2c.create_vpc(CidrBlock='10.2.0.0/16').get('Vpc').get('VpcId')
     vpc3 = ec2c.create_vpc(CidrBlock='10.3.0.0/16').get('Vpc').get('VpcId')
@@ -109,7 +113,10 @@ def test_configure_config(mock_config):
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -128,7 +135,16 @@ def test_configure_config(mock_config):
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
-    s3client = boto3.client('s3')
+    os.environ['AWS_ACCESS_KEY_ID'] = 'foo'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
+    mock = mock_s3()
+    mock.start()
+    s3client = boto3.client('s3',
+                            region_name='us-east-1',
+                            aws_access_key_id='',
+                            aws_secret_access_key='',
+                            aws_session_token='')
+
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
     with patch('deployer.aws.boto3', fake_boto3):
@@ -155,7 +171,10 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'            
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -180,12 +199,21 @@ def test_configure_config_with_tags_no_version(mock_config_with_tags):
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
-    s3client = boto3.client('s3')
+    os.environ['AWS_ACCESS_KEY_ID'] = 'foo'
+    os.environ['AWS_SECRET_ACCESS_KEY'] = 'bar'
+    mock = mock_s3()
+    mock.start()
+    s3client = boto3.client('s3',
+                            region_name='us-east-1',
+                            aws_access_key_id='',
+                            aws_secret_access_key='',
+                            aws_session_token='')
+
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
+    # We need to create the bucket since this is all in Moto's 'virtual'
+    # AWS account
     with patch('deployer.aws.boto3', fake_boto3):
-        # We need to create the bucket since this is all in Moto's 'virtual'
-        # AWS account
         returned_config = aws.configure(mock_config_with_tags)
     assert returned_config == expected_config
 
@@ -205,7 +233,10 @@ def test_configure_config_with_tags(mock_config_with_tags):
         "availability_zones"  : [
             'us-east-1a',
             'us-east-1b',
-            'us-east-1c'
+            'us-east-1c',
+            'us-east-1d',
+            'us-east-1e',
+            'us-east-1f'            
         ],
         "account_id" : "123456789012",
         "environment" : {
@@ -230,7 +261,13 @@ def test_configure_config_with_tags(mock_config_with_tags):
     # fake_boto3 still required here because mock_iam has not yet
     # implemented the list_account_aliases() method yet, which is used
     # in aws.configure().
-    s3client = boto3.client('s3')
+    mock = mock_s3()
+    mock.start()
+    s3client = boto3.client('s3',
+                            region_name='us-east-1',
+                            aws_access_key_id='',
+                            aws_secret_access_key='',
+                            aws_session_token='')
     s3client.create_bucket(Bucket=expected_config['project_config'])
     s3client.create_bucket(Bucket=expected_config['tf_state_bucket'])
     with patch('deployer.aws.boto3', fake_boto3):
@@ -265,17 +302,18 @@ def test_configure_env(mock_config, mock_env):
 
 
 @mock_iam
-def test_get_account_name():
+def test_get_account_name(mock_config):
     '''list_account_aliases() Not yet implemented.'''
-    # assert aws.get_account_name()
-    # return
-    pass
+    with patch('deployer.aws.boto3', fake_boto3):
+        assert aws.get_account_name() == mock_config['aws_profile']
+    return
 
 
 @mock_sts
 def test_get_account_id(mock_config):
     mock_config['account_id'] = "123456789012"
-    returned_id = aws.get_account_id()
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_id = aws.get_account_id()
     assert returned_id == mock_config['account_id']
     return
 
@@ -306,7 +344,9 @@ def test_get_current_az_list_no_list():
                       "us-east-1d",
                       "us-east-1e",
                       "us-east-1f"]
-    returned_zones = aws.get_current_az_list(passed_config)
+
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_zones = aws.get_current_az_list(passed_config)
 
     for zone in returned_zones:
         assert zone in expected_zones
@@ -320,7 +360,8 @@ def test_list_vpcs(mock_config):
 
     # Create our mock VPCs.
     mock_vpcs()
-    returned_vpcs = aws.list_vpcs(env)
+    with patch('deployer.aws.boto3', fake_boto3):
+        returned_vpcs = aws.list_vpcs(env)
     assert returned_vpcs == expected_vpcs
     return
 

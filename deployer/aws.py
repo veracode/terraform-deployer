@@ -153,7 +153,6 @@ def get_current_az_list(config):
         List of strings
     """
     avail_zones = config.get('availability_zones', [])
-
     if not avail_zones:
         ec2c = boto3.client('ec2')
         for zone in ec2c.describe_availability_zones()['AvailabilityZones']:
