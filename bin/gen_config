@@ -35,9 +35,9 @@ def main():
 
     newConfig = config
     if opts.override:
-        newConfig = { **config, **opts }
+        newConfig = { **config, **opts.override }
 
-    if ( newConfig['environment'].has_key('version') and
+    if ( 'version' in newConfig['environment'].keys() and
          newConfig['environment']['version'] == 'GET_NEXT'):
         env_name = newConfig['environment']['name']
         prod = newConfig['tags'].get('product', None)

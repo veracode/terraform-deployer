@@ -149,7 +149,7 @@ def main():
     }
 
     # Trigger the function we want to now that we're set up
-    for key, value in arguments.iteritems():
+    for key, value in arguments.items():
         if arguments[key] and functions.get(key):
             if key == 'output':
                 functions[key](config, arguments['<tf_var>'])
