@@ -1,17 +1,19 @@
 variables:
-    DOCKER_HOST: tcp://docker:2375/
-    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
-    DOCKER_HOST: tcp://docker:2375
     # When using dind, it's wise to use the overlayfs driver for
     # improved performance.
     DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375/
+    CONTAINER_IMAGE: registry.gitlab.com/$CI_PROJECT_PATH
+    DOCKER_HOST: tcp://docker:2375
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    CREDS: "gitlab-ci-token:${CI_JOB_TOKEN}"
 
 services:
   - docker:dind
 
 stages:
-  - test
+  - unit-test
+  - integration-test
   - build
   - tag
 
@@ -32,8 +34,8 @@ auto_tag_repo:
   script:
     - tag-repo
 
-run_tests:
-  stage: test
+unit_tests:
+  stage: unit-test
   image: python:3-slim
   when: always
   except:
@@ -49,7 +51,25 @@ run_tests:
     - make testall
     - deployer --help
     - gen_config --help
-  
+
+integration_tests:
+  stage: integration-test
+  image: python:3-slim
+  when: always
+  except:
+    - tags
+  script:
+    - apt-get update
+    - apt-get install -y make
+    - cd  ${CI_PROJECT_DIR}
+    - make CONFIG=~/.aws/config config
+    - make install
+    - deployer --help
+    - gen_config --help
+    - git clone https://${CREDS}@git@gitlab.com:seek-and-deploy/core-infrastructure.git
+    - bin/gen_config -c /builds/seek-and-deploy/core-infrastructure/config/core_template.json -o /tmp/core-tf-test.json
+    - bin/deployer plan -v /tmp/core-tf-test.json --debug 
+    
 build_container_dev:
   stage: build
   image: docker:18-dind
