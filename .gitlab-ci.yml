@@ -74,7 +74,8 @@ build_container_dev:
   stage: build
   image: docker:18-dind
   dependencies:
-    - run_tests
+    - unit_tests
+    - integration_tests
   when: on_success
   except:
     - tags
@@ -88,7 +89,8 @@ build_container_prod:
   stage: build
   image: docker:18-dind
   dependencies:
-    - run_tests
+    - unit_tests
+    - integration_tests
   when: on_success
   only:
     - tags
