@@ -37,7 +37,6 @@ def main():
     if opts.override:
         newConfig = { **config, **opts.override }
 
-
     if ( 'version' in newConfig['environment'].keys() and
          newConfig['environment']['version'] == 'GET_NEXT'):
         env_name = newConfig['environment']['name']
