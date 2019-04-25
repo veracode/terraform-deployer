@@ -53,9 +53,21 @@ def preconfig(setup_teardown):
     return setup_teardown
 
 
+@mock_s3
+def test_presetup(setup_teardown):
+    expected_file = os.path.join(setup_teardown['tmpdir'], 'vars.tf')
+    return_config = preflight.pre_setup(setup_teardown)
+
+    assert os.path.isdir(setup_teardown['tmpdir'])
+    assert return_config['tfvars'] == expected_file
+    assert return_config['tf_root'] == os.path.join(setup_teardown['tmpdir'],
+                                                    'project')
+    return
+
+
 @mock_route53
 @mock_s3
-def test_setup0(setup_teardown):
+def test_setup(setup_teardown):
     expected_file = os.path.join(setup_teardown['tmpdir'], 'vars.tf')
     s3client = boto3.client('s3')
     s3client.create_bucket(Bucket=setup_teardown['project_config'])
@@ -66,7 +78,11 @@ def test_setup0(setup_teardown):
     zone = r53client.create_hosted_zone(Name=setup_teardown['route53_tld'],
                                         CallerReference=caller_ref )
     zoneId = zone.get('HostedZone').get('Id').split('/')[2]
-    return_config = preflight.setup(setup_teardown)
+    config = preflight.pre_setup(setup_teardown)
+    # We set this to "<computed>" if we're running "plan", so need to
+    # undo it to simulate reality.
+    config.pop('public_zone_id', None)
+    return_config = preflight.setup(config)
 
     assert os.path.isdir(setup_teardown['tmpdir'])
     assert return_config['tfvars'] == expected_file
@@ -78,7 +94,7 @@ def test_setup0(setup_teardown):
 
 @mock_route53
 @mock_s3
-def test_setup_with_local_dir(setup_teardown):
+def test_setup_with_local_dir0(setup_teardown):
     setup_teardown['terraform'] = "/some/local/path?branch=BRANCH_NAME"
     
     expected_file = os.path.join(setup_teardown['tmpdir'], 'vars.tf')
@@ -94,8 +110,12 @@ def test_setup_with_local_dir(setup_teardown):
     zoneId = zone.get('HostedZone').get('Id').split('/')[2]
 
     with patch('deployer.utils.run_command', mock_run_cmd):
-        return_config = preflight.setup(setup_teardown)
-
+        config = preflight.pre_setup(setup_teardown)
+        # We set this to "<computed>" if we're running "plan", so need to
+        # undo it to simulate reality.
+        config.pop('public_zone_id', None)
+        return_config = preflight.setup(config)
+        
     assert return_config['tf_root'] == "/some/local/path"
 
 
@@ -117,7 +137,11 @@ def test_setup_with_local_dir_and_subdir(setup_teardown):
     zoneId = zone.get('HostedZone').get('Id').split('/')[2]
 
     with patch('deployer.utils.run_command', mock_run_cmd):
-        return_config = preflight.setup(setup_teardown)
+        config = preflight.pre_setup(setup_teardown)
+        # We set this to "<computed>" if we're running "plan", so need to
+        # undo it to simulate reality.
+        config.pop('public_zone_id', None)
+        return_config = preflight.setup(config)
 
     assert return_config['tf_root'] == "/some/local/path/subdir"
 

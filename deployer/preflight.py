@@ -16,23 +16,9 @@ from   deployer.exceptions import MissingConfigurationParameterException
 logger = logging.getLogger(os.path.basename('deployer'))
 
 
-def setup(config, sync = True):
-    """
-    Get ready to run 'terraform apply' for this environment.
-    Modifies the dictionary passed in, then returns it.
+def pre_setup(config, sync = True):
 
-    Args:
-        config: dictionary containing all variable settings required
-                to run terraform with
-
-        sync: boolean. Toggles setting the branch on/off. Defaults to on.
-
-    Returns:
-        config with updated values.
-
-    Raises:
-        MissingConfigurationParameterException for missing config file entries.
-    """
+    config['public_zone_id'] = config.get('public_zone_id', "<computed>")
     #create tmp dir to stage a deployment from
     config['tmpdir'] = config.get('tmpdir',
                                   os.path.join('/tmp', str(uuid.uuid4())))
@@ -44,23 +30,6 @@ def setup(config, sync = True):
     config['tfvars'] = os.path.join(workdir.options.path,
                                     config.get('tfvars_file', 'vars.tf'))
 
-    # Create the per-environment S3 folder in pre-flight
-    logmsg = "{}: Creating per-environment folder : {}:{}"
-    logger.debug(logmsg.format(__name__,
-                               config['project_config'],
-                               config['env_folder']))
-    s3.create_folder(config['project_config'],config['env_folder'])
-
-    if not config.get('route53_tld', None):
-        msg = "route53_tld variable is not set in config file."
-        raise MissingConfigurationParameterException(msg)
-
-    zone_id = r53.get_zone_id(config['route53_tld'])
-    if not zone_id:
-        msg = "zone_id not set."
-        raise MissingConfigurationParameterException(msg)
-
-    config['public_zone_id'] = config.get('public_zone_id', zone_id)
     config['tf_root'] = config.get('tf_root',
                                    utils.get_tf_location(config))
 
@@ -84,6 +53,44 @@ def setup(config, sync = True):
             msg = "Setting tf_root to: {}".format(tf_root)
             logger.debug(msg)
             config['tf_root'] = tf_root
+
+    return config
+
+
+def setup(config, sync = True):
+    """
+    Get ready to run 'terraform apply' for this environment.
+    Modifies the dictionary passed in, then returns it.
+
+    Args:
+        config: dictionary containing all variable settings required
+                to run terraform with
+
+        sync: boolean. Toggles setting the branch on/off. Defaults to on.
+
+    Returns:
+        config with updated values.
+
+    Raises:
+        MissingConfigurationParameterException for missing config file entries.
+    """
+    # Create the per-environment S3 folder in pre-flight
+    logmsg = "{}: Creating per-environment folder : {}:{}"
+    logger.debug(logmsg.format(__name__,
+                               config['project_config'],
+                               config['env_folder']))
+    s3.create_folder(config['project_config'],config['env_folder'])
+
+    if not config.get('route53_tld', None):
+        msg = "route53_tld variable is not set in config file."
+        raise MissingConfigurationParameterException(msg)
+
+    zone_id = r53.get_zone_id(config['route53_tld'])
+    if not zone_id:
+        msg = "zone_id not set."
+        raise MissingConfigurationParameterException(msg)
+
+    config['public_zone_id'] = config.get('public_zone_id', zone_id)
 
     return config
 
