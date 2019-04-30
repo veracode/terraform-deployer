@@ -1,4 +1,4 @@
-Here are some basic steps which should get you started using the terraform-deployer deployer from your desktop.   In this exercise, I use the WAS JobService project as an example. I also demonstrate how to use the deployer to deploy a service into a pre-existing environment by first deploying that pre-existing environment.  This is done in order show how you might deploy a service into a shared infrastructure which you might not have control over, or which someone else may have created to be shared across multiple teams. In these cases, you would skip the deployment of the pre-existing environment (because it already exists) and you'd simply have your service refer to a pre-existing state file containing all the data necessary to launch your service into that environment.
+Here are some basic steps which should get you started using the terraform-deployer deployer from your desktop.   In this exercise, I use a generic project as an example. I also demonstrate how to use the deployer to deploy a service into a pre-existing environment by first deploying that pre-existing environment.  This is done in order show how you might deploy a service into a shared infrastructure which you might not have control over, or which someone else may have created to be shared across multiple teams. In these cases, you would skip the deployment of the pre-existing environment (because it already exists) and you'd simply have your service refer to a pre-existing state file containing all the data necessary to launch your service into that environment.
 
 Installing the Deployer
 Prerequisites
@@ -107,7 +107,7 @@ $ pip install --extra-index-url https://pypi.python.org/simple deployer
 Installing and running the deployer in a deployer development environment
 
 Checkout the deployer project:
-https://github.com/veracode//terraform-deployer/deployer
+https://github.com/veracode/terraform-deployer/deployer
 
 Run: 
 
@@ -159,7 +159,7 @@ $ export API_TOKEN=XXXXXXXXXXXXXXXXXXXX
 If the environment variable API_TOKEN is set in your environment, AND the deployer finds the token API_TOKEN in the config file like this:
 
 {
-    "terraform" : "https://github-ci-token:API_TOKEN@github.com/veracode//was-common/was-core-infrastructure.git",
+    "terraform" : "https://github-ci-token:API_TOKEN@github.com/veracode/was-common/was-core-infrastructure.git",
 ...
 }
 it will replace the string 'API_TOKEN' with the value of the environment variable of the same name.  This allows the deployer to check code out of Github directly. Github runners can only access the code repository for the repository the pipeline was generated from. Therefore, if you're attempting to run a pipeline for projectB, which has a dependency on projectA, and you need to checkout projectA first, the runner has no way of doing this without authentication. The API_TOKEN is that authentication. 
@@ -226,7 +226,7 @@ and the service template looks like this:
 
 {
     "tmpdir" : "/tmp/deployer_dir",
-    "terraform" : "/builds/widget?branch=test-2//deploy",
+    "terraform" : "/builds/widget?branch=test-2/deploy",
     "aws_region": "us-east-1",
     "aws_profile": "aws-nonprod",
     "aws_key_name": "aws_pem_key",
@@ -269,4 +269,4 @@ In the first config, you'll notice a line like this:
 
     "terraform" : "https://github-ci-token:API_TOKEN@github.com/veracode/core-infrastructure.git",
 
-When running the deployer, this is the line which tells the utility where the code repository exists for whatever the deployer is operating on.  In this example you'll also notice the use of API_TOKEN.  The deployer will extract this value from the environment variable and replace this token with it, thereby allowing the deployer to clone a repository different from the one which invoked the runner it is currently executing under.  See the terraform-deployer documentation for more detailed information about the variables contained in this file: https://github.com/veracode//terraform-deployer/deployer)
+When running the deployer, this is the line which tells the utility where the code repository exists for whatever the deployer is operating on.  In this example you'll also notice the use of API_TOKEN.  The deployer will extract this value from the environment variable and replace this token with it, thereby allowing the deployer to clone a repository different from the one which invoked the runner it is currently executing under.  See the terraform-deployer documentation for more detailed information about the variables contained in this file: https://github.com/veracode/terraform-deployer/deployer)

@@ -115,7 +115,11 @@ def main():
     git_sync = True
     if arguments.get('output'):
         git_sync = False
-    config = preflight.setup(config, sync=git_sync)
+
+    config = preflight.pre_setup(config)
+    if not arguments.get('plan'):
+        config.pop('public_zone_id', None)
+        config = preflight.setup(config, sync=git_sync)
 
     if arguments['create'] and not arguments['--skip-download']:
         preflight.download_staged_artifacts(config)

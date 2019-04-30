@@ -116,7 +116,7 @@ def query(config):
     if system_type:
         env = "-".join([system_type, env])
 
-    if resources > 0:
+    if (resources):
         msg  = "{} exists."
         msg += "\n\n{}"
         resources_json = json.dumps(resources,indent=4)
