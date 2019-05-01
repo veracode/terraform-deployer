@@ -6,6 +6,12 @@ Essentially, it is a python wrapper around [Terraform](https://terraform.io) cod
 
 The terraform code defining an infrastructure, however, is located in a separated repository and is, or should be, completely customizable to your project's needs. The deployer is completely agnostic as to what the infrastructure is, just that it's defined using Terraform.
 
+# # Official Source Location
+
+The official Git Repo of this project is located here at: [GitHub](https://github.com/veracode/terraform-deployer), because that's where Veracode graciously allowed me to release this code as Open Source.  I have since forked that repository here to [GitLab](https://gitlab.com/seek-and-deploy/terraform-deployer) because of GitLab's superior (in my opinion) development environment, including pipelines (all of which, ironically, I came to know and love while still at Veracode!)
+
+Should Veracode ever decide to open up a Gitlab.com presence for their Open Source projects, I'll gladly move this under their auspices.  For now, my main development takes place here, and when I release anything new, it will be pushed over to GitHub as well to ensure that location is up to date.
+
 # Deployment Requirements
 
 1. A set of AWS credentials
